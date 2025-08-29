@@ -1,6 +1,13 @@
-.venv/
+# Virtual environment
+mafenv/
+
+# Python cache
 __pycache__/
 *.pyc
+
+# Local environment variables
 .env
+
+# Logs and experiment results
 logs/
 results/
