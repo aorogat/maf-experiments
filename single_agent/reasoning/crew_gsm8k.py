@@ -15,6 +15,7 @@ class SingleAgentCrewGSM8K():
     def reasoner(self) -> Agent:
         return Agent(
             config=self.agents_config['reasoner'],
+            llm=CONFIG["llm"],
             verbose=True
         )
 
@@ -32,6 +33,7 @@ class SingleAgentCrewGSM8K():
             tasks=self.tasks,
             process=Process.sequential,
             verbose=True,
+            output_log_file="logs/SingleAgentCrewGSM8K.json",
         )
 
         print(CONFIG.get("planning"))

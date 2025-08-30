@@ -6,4 +6,4 @@ reasoner:
   backstory: >
     You're a reasoning agent that carefully works through each problem before answering.
   # llm: ollama/deepseek-llm:7b   # ✅ key: tells CrewAI to use Ollama model
-  llm: ollama/gpt-oss:20b   # ✅ key: tells CrewAI to use Ollama model
+  # llm: ollama/gpt-oss:20b   # ✅ key: tells CrewAI to use Ollama model

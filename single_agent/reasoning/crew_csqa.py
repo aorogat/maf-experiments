@@ -15,6 +15,7 @@ class SingleAgentCrewCSQA():
     def reasoner(self) -> Agent:
         return Agent(
             config=self.agents_config['reasoner'],
+            llm=CONFIG["llm"],
             verbose=True
         )
 
@@ -32,6 +33,7 @@ class SingleAgentCrewCSQA():
             tasks=self.tasks,
             process=Process.sequential,
             verbose=True,
+            output_log_file="logs/SingleAgentCrewCSQA.json",
         )
 
         if CONFIG.get("planning", False):

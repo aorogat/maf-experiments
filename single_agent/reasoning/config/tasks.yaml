@@ -12,3 +12,11 @@ csqa_task:
   expected_output: >
     A single letter.
   agent: reasoner
+
+math_task:
+  description: >
+    Solve the following mathematics problem: {question}
+    Provide only the final numeric or symbolic answer.
+  expected_output: >
+    A single expression or number (the correct answer).
+  agent: reasoner
