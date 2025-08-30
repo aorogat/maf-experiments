@@ -1,0 +1,14 @@
+gsm8k_task:
+  description: >
+    Solve the following math word problem: {question}
+    Provide only the final numeric answer.
+  expected_output: >
+    A single number (the final answer).
+  agent: reasoner
+
+csqa_task:
+  description: >
+    Solve the following commonsense multiple choice question: {question}
+  expected_output: >
+    A single letter.
+  agent: reasoner

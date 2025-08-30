@@ -13,3 +13,6 @@ google-generativeai   # for Gemini if you plan to test it
 
 # Local LLMs
 ollama  # Ollama client library
+
+
+datasets

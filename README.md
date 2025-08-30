@@ -85,11 +85,11 @@ maf-experiments/
 │   ├── remote_llm.py
 │   ├── test_llms.py
 │   └── README.md
-├── single-agent/          # Single-agent experiments
+├── single_agent/          # Single-agent experiments
 │   ├── memory/
 │   ├── reasoning/
 │   └── tool-use/
-├── multi-agent/           # Multi-agent experiments
+├── multi_agent/           # Multi-agent experiments
 │   ├── communication/
 │   ├── coordination/
 │   ├── environment/

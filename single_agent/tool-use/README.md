@@ -6,4 +6,4 @@ This folder contains experiments for the **$(basename $folder)** setup.
 - **crewai_test.py** → run with CrewAI
 - **concordia_test.py** → run with Concordia
 
-Extend these scripts with the actual experiment logic.
+

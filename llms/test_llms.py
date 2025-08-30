@@ -10,11 +10,13 @@ from llms.local_llm import LocalOllamaLLM
 from llms.remote_llm import OpenAILLM
 
 def test_local():
+    # model_name = "gpt-oss:20b"
+    model_name = "deepseek-llm:7b"
     try:
         print("🔹 Testing Local Ollama LLM...")
-        ollama_model = LocalOllamaLLM("deepseek-llm:7b")
-        response = ollama_model.generate("Hello from Ollama!")
-        print("✅ Local response:", response[:200], "...\n")
+        ollama_model = LocalOllamaLLM(model_name)
+        response = ollama_model.generate("In one paragraph, write about multi-agent frameworks")
+        print("✅ Local response:", response)
     except Exception as e:
         print("❌ Local Ollama test failed:", e)
 
@@ -22,8 +24,8 @@ def test_remote():
     try:
         print("🔹 Testing Remote OpenAI LLM...")
         openai_model = OpenAILLM(model="gpt-4o-mini")
-        response = openai_model.generate("Hello from OpenAI!")
-        print("✅ Remote response:", response[:200], "...\n")
+        response = openai_model.generate("In one paragraph, write about multi-agent frameworks")
+        print("✅ Remote response:", response)
     except Exception as e:
         print("❌ Remote OpenAI test failed:", e)
 
