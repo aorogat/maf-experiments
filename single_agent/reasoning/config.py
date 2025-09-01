@@ -4,8 +4,8 @@ CONFIG = {
     "planning_llm": "ollama/gpt-oss:20b",
     "results_dir": "results",
     "benchmarks": ["gsm8k", "csqa", "math"],
-    "n_gsm8k": 3,         # set None for full test set, a number for a subset
-    "n_csqa": 3,        # set None for full test set, a number for a subset
-    "n_math": 3,         # set None for full test set, a number for a subset
+    "n_gsm8k": None,         # set None for full test set, a number for a subset
+    "n_csqa": None,        # set None for full test set, a number for a subset
+    "n_math": None,         # set None for full test set, a number for a subset
 }
 
