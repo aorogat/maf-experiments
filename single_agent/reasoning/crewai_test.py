@@ -286,9 +286,12 @@ def run_crewai_on_benchmark(benchmark, crew_cls, log_file, filename):
         os.remove(log_file)
 
     crew = crew_cls().crew()
+    total = len(benchmark.questions)
 
     start = time.perf_counter()
-    for q in benchmark.questions:
+    for idx, q in enumerate(benchmark.questions, 1):
+        print(f"🔹 Running {benchmark.name.upper()} Question {idx}/{total}")
+
         inputs = {"question": q.question, "planning": CONFIG["planning"]}
         result = crew.kickoff(inputs=inputs)
 
@@ -297,7 +300,7 @@ def run_crewai_on_benchmark(benchmark, crew_cls, log_file, filename):
         benchmark.set_pred(q, pred)
 
     elapsed = time.perf_counter() - start
-    print(f"⏱️ Finished {benchmark.name.upper()} in {elapsed:.2f} sec")
+    print(f"\n⏱️ Finished {benchmark.name.upper()} in {elapsed:.2f} sec")
 
     # save + print results
     benchmark.save_results(CONFIG["results_dir"], filename)
