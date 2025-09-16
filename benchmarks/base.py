@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from typing import List, Optional
 import json, os
 from abc import ABC, abstractmethod
+import statistics
 
 @dataclass
 class Question:
@@ -11,6 +12,8 @@ class Question:
     gold: str
     pred: Optional[str] = None
     correct: Optional[bool] = None
+    time_used: Optional[float] = None     # ⏱ seconds for LLM response
+    tokens_out: Optional[int] = None      # 🔤 number of output tokens
 
 
 class Benchmark(ABC):
@@ -34,19 +37,47 @@ class Benchmark(ABC):
         """Judge correctness of prediction vs gold."""
         pass
 
-    def set_pred(self, q: Question, pred: str):
+    def set_pred(self, q: Question, pred: str, time_used: float = None, tokens_out: int = None):
+        """
+        Assign prediction and evaluate correctness with normalization on both sides.
+        Also attach timing and token usage.
+        """
         q.pred = self.normalize(pred)
+        q.gold = self.normalize(q.gold)
         q.correct = self.is_equiv(q.gold, q.pred)
-
+        q.time_used = time_used
+        q.tokens_out = tokens_out
 
     def evaluate(self):
         total = len(self.questions)
         correct = sum(1 for q in self.questions if q.correct)
-        return {
+
+        # collect times/tokens (filter None)
+        times = [q.time_used for q in self.questions if q.time_used is not None]
+        tokens = [q.tokens_out for q in self.questions if q.tokens_out is not None]
+
+        metrics = {
             "accuracy": correct / total if total else 0,
             "correct": correct,
-            "total": total
+            "total": total,
         }
+
+        if times:
+            metrics.update({
+                "time_total": sum(times),
+                "time_mean": statistics.mean(times),
+                "time_min": min(times),
+                "time_max": max(times),
+            })
+        if tokens:
+            metrics.update({
+                "tokens_total": sum(tokens),
+                "tokens_mean": statistics.mean(tokens),
+                "tokens_min": min(tokens),
+                "tokens_max": max(tokens),
+            })
+
+        return metrics
 
     def save_results(self, results_dir: str, filename: str):
         """Save benchmark results to results_dir/filename.json"""
@@ -66,3 +97,16 @@ class Benchmark(ABC):
         m = self.evaluate()
         print(f"=== {self.name.upper()} ===")
         print(f"Accuracy: {m['accuracy']:.3f} ({m['correct']}/{m['total']})")
+
+        if "time_total" in m:
+            print(f"⏱ Total Time: {m['time_total']:.2f}s "
+                  f"(mean {m['time_mean']:.2f}, min {m['time_min']:.2f}, max {m['time_max']:.2f})")
+
+        if "tokens_total" in m:
+            print(f"🔤 Total Tokens: {m['tokens_total']} "
+                  f"(mean {m['tokens_mean']:.1f}, min {m['tokens_min']}, max {m['tokens_max']})")
+
+        print()
+        for q in self.questions:
+            status = "✅" if q.correct else "❌"
+            print(f"Q{q.qid}: {status} | Time: {q.time_used:.3f}s | Tokens: {q.tokens_out}")

@@ -1,21 +1,53 @@
 import os, json
 from .base import Benchmark, Question
 from llms.local_llm import LocalOllamaLLM
+from llms.remote_llm import OpenAILLM
 from single_agent.reasoning.config import CONFIG
 
-# To test this file: Run,  python -m benchmarks.math
+
+import re
 
 def normalize_answer(sol: str) -> str:
-    """Extract final boxed answer from MATH solution string."""
-    ans = last_boxed_only_string(sol)
-    return remove_boxed(ans)
+    """Extract final boxed answer from MATH solution string, or fallback to last line."""
+    text = str(sol).strip()
+
+    # Manually parse to handle nested braces in \boxed{...}
+    start = text.rfind(r"\boxed{")
+    if start != -1:
+        i = start + len(r"\boxed{")
+        depth = 1
+        result = []
+        while i < len(text) and depth > 0:
+            if text[i] == "{":
+                depth += 1
+            elif text[i] == "}":
+                depth -= 1
+                if depth == 0:
+                    break
+            result.append(text[i])
+            i += 1
+        return "".join(result).strip()
+
+    # Fallback: take last non-empty line
+    lines = [l.strip() for l in text.splitlines() if l.strip()]
+    if lines:
+        return lines[-1]
+    return text
+
+
 
 
 class MATHBenchmark(Benchmark):
-    def __init__(self, root="data/MATH/test", split="test", n=None):
+    def __init__(self, root="data/MATH/test", split="test", n=None, use_remote=True):
         self.root = root
-        # initialize local LLM (Ollama) for equivalence checking
-        self.llm = LocalOllamaLLM(CONFIG.get("judge_llm", "gpt-oss:20b"))
+
+        # Choose judge LLM backend
+        model_name = CONFIG.get("judge_llm", "gpt-4o-mini" if use_remote else "gpt-oss:20b")
+        if use_remote:
+            self.llm = OpenAILLM(model_name)
+        else:
+            self.llm = LocalOllamaLLM(model_name)
+
         super().__init__("math")
         self.load_data(split, n)
 
@@ -36,65 +68,68 @@ class MATHBenchmark(Benchmark):
             gold = normalize_answer(prob["solution"])
             self.questions.append(
                 Question(
-                    qid=str(i+1),
+                    qid=str(i),
                     question=prob["problem"],
                     gold=gold
                 )
             )
 
     def normalize(self, text: str) -> str:
-        """No numeric extraction; return raw stripped text."""
         return str(text).strip()
 
-    
-    # def is_equiv(self, gold: str, pred: str) -> bool:
-    #     if not gold or not pred:
-    #         return False
-    #     prompt = f"Gold answer: {gold}\nPredicted answer: {pred}\n\nAre these mathematically equivalent? Respond with only 'Yes' or 'No'."
-    #     resp = self.llm.generate(prompt).strip().lower()
-    #     return "yes" in resp  # safer than just startswith("y")
-
     def is_equiv(self, gold: str, pred: str) -> bool:
-        """Use local LLM to decide if pred ≡ gold."""
+        """Judge if prediction is mathematically equivalent to gold."""
         if not gold or not pred:
             return False
 
+        gold_norm = self.normalize(gold)
+        pred_norm = self.normalize(pred)
+
+        # Quick exact match
+        if gold_norm == pred_norm:
+            return True
+
         prompt = (
-            f"Gold answer: {gold}\n"
-            f"Predicted answer: {pred}\n\n"
-            "Determine if these are mathematically equivalent.\n"
+            f"Gold answer: {gold_norm}\n"
+            f"Predicted answer: {pred_norm}\n\n"
+            "Are these mathematically equivalent?\n"
             "Reply with exactly one word: YES or NO."
         )
 
         try:
             resp = self.llm.generate(prompt).strip().lower()
-            print(f"🔍 Judge LLM response: {resp}")  # Debug log
-
-            # Accept several variants just in case
             if resp in {"yes", "y", "equivalent", "true"}:
                 return True
-            elif resp in {"no", "n", "different", "false"}:
+            if resp in {"no", "n", "different", "false"}:
                 return False
-            else:
-                # If it's verbose, check keywords
-                if "yes" in resp or "equivalent" in resp:
-                    return True
-                if "no" in resp or "different" in resp:
-                    return False
+            if "yes" in resp or "equivalent" in resp:
+                return True
+            if "no" in resp or "different" in resp:
                 return False
+            return False
         except Exception as e:
             print("⚠️ LLM equivalence check failed:", e)
             return False
 
 
-
 # 🔹 Run a quick self-test if called directly
 if __name__ == "__main__":
-    bench = MATHBenchmark(root="data/MATH/test", n=3)
+    bench = MATHBenchmark(root="data/MATH/test", n=3, use_remote=True)
     print("✅ Loaded MATH benchmark")
-    bench.print_summary()
-    # Fake predictions
+    
+
+    print("\n=== Detailed Results ===")
     for q in bench.questions:
-        bench.set_pred(q, q.gold)  # pretend model predicted perfectly
-        q.correct = bench.is_equiv(q.gold, q.pred)
-        print(f"Q{q.qid}: {q.question[:50]}... | Pred: {q.pred} | Gold: {q.gold} | Correct: {q.correct}")
+        bench.set_pred(q, q.gold)  # test with perfect predictions
+
+        # Pretty print results
+        gold_preview = (q.gold[:320] + "...") if len(q.gold) > 120 else q.gold
+        pred_preview = (q.pred[:320] + "...") if len(q.pred) > 120 else q.pred
+
+        status = "✅ Correct" if q.correct else "❌ Incorrect"
+        print(f"\nQ{q.qid}: {q.question[:200].replace('\n',' ')}...")
+        print(f"   Gold: {gold_preview}")
+        print(f"   Pred: {pred_preview}")
+        print(f"   Result: {status}")
+
+    bench.print_summary()

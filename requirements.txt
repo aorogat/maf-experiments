@@ -1,3 +1,8 @@
+# Core scientific + data
+networkx
+pandas
+datasets
+
 # Multi-agent frameworks
 langgraph
 crewai
@@ -9,10 +14,13 @@ python-dotenv
 # Remote LLMs
 openai
 anthropic
-google-generativeai   # for Gemini if you plan to test it
+google-generativeai   # Gemini
 
 # Local LLMs
-ollama  # Ollama client library
+ollama
+langchain-ollama
 
-
-datasets
+# Optional helpers
+tqdm
+scipy
+langchain-openai
