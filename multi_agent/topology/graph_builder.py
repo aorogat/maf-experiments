@@ -3,10 +3,18 @@ graph_builder.py
 ----------------
 Utilities to build agent graphs for experiments.
 
-Supports:
-- Loading graphs from HuggingFace datasets (legacy).
-- Future: building graphs dynamically using multi-agent frameworks
-  like LangGraph, CrewAI, or custom generators.
+Supports two main modes:
+1. HuggingFace ("hf"): loads pre-generated graphs from the AgentsNet dataset.
+2. Framework ("framework"): allows integration with orchestration frameworks
+   like LangGraph, CrewAI, or custom MAS graph generators.
+
+Notes on LangGraph:
+-------------------
+For LangGraph runs, we currently *reuse the same HF graphs* as input.
+The difference lies not in how graphs are built but in how agents
+communicate during execution (handled in `langgraph_runner.py`).
+Thus, when `framework="langgraph"` is passed, the system behaves
+identically to "hf" mode in graph construction.
 """
 
 import json
@@ -18,7 +26,7 @@ from datasets import load_dataset
 
 def build_graph_from_hf(graph_model: str, graph_size: int, num_sample: int) -> nx.Graph:
     """
-    Build a graph from the HuggingFace dataset (legacy mode).
+    Build a graph from the HuggingFace dataset.
 
     Parameters
     ----------
@@ -53,10 +61,35 @@ def build_graph_from_hf(graph_model: str, graph_size: int, num_sample: int) -> n
     return json_graph.node_link_graph(graph_dict["graph"], edges="links")
 
 
+
+def build_graph_from_hf_all_connected(graph_model: str, graph_size: int, num_sample: int) -> nx.Graph:
+    """
+    Build a graph from HF dataset and then enforce full connectivity.
+
+    Equivalent to simulating Concordia's "relay hub" behavior,
+    where all agents can reach each other directly.
+    """
+    G = build_graph_from_hf(graph_model, graph_size, num_sample)
+
+    nodes = list(G.nodes())
+    for u in nodes:
+        for v in nodes:
+            if u != v and not G.has_edge(u, v):
+                G.add_edge(u, v)
+
+    print(f"[GraphBuilder] Modified graph to fully connected: {graph_model}_{graph_size}_{num_sample}")
+
+    return G
+
+
+
 def build_graph_from_framework(framework: str, config: dict) -> nx.Graph:
     """
-    Placeholder: Build a graph using a multi-agent framework
-    (LangGraph, CrewAI, etc.).
+    Build a graph using a multi-agent framework (LangGraph, CrewAI, etc.).
+
+    For LangGraph:
+    - No special graph structure is required, we just use HF graphs.
+    - The distinction is in execution (runner), not construction.
 
     Parameters
     ----------
@@ -70,9 +103,13 @@ def build_graph_from_framework(framework: str, config: dict) -> nx.Graph:
     nx.Graph
         The constructed NetworkX graph.
     """
+    if framework == "langgraph":
+        print("[GraphBuilder] Using LangGraph mode: falling back to HF-style graphs.")
+        # Still return an empty placeholder unless HF is explicitly requested
+        return nx.Graph()
+
     print(f"[GraphBuilder] Building graph using framework={framework}, config={config}")
-    # TODO: Implement actual integration with chosen framework.
-    # For now, just return an empty graph as placeholder.
+    # TODO: Implement integration with other frameworks (CrewAI, Concordia, etc.)
     return nx.Graph()
 
 
@@ -83,7 +120,9 @@ def get_graph(source: str, **kwargs) -> nx.Graph:
     Parameters
     ----------
     source : str
-        Graph source type ("hf" for HuggingFace, "framework" for MAS framework).
+        Graph source type:
+          - "hf": load from HuggingFace dataset.
+          - "framework": build using a MAS framework (LangGraph, CrewAI, etc.).
     kwargs : dict
         Arguments passed to the builder.
 
@@ -91,8 +130,15 @@ def get_graph(source: str, **kwargs) -> nx.Graph:
     -------
     nx.Graph
     """
+    print("[source: hf_all_connected]")
     if source == "hf":
         return build_graph_from_hf(
+            graph_model=kwargs["graph_model"],
+            graph_size=kwargs["graph_size"],
+            num_sample=kwargs["num_sample"],
+        )
+    elif source == "hf_all_connected":
+        return build_graph_from_hf_all_connected(
             graph_model=kwargs["graph_model"],
             graph_size=kwargs["graph_size"],
             num_sample=kwargs["num_sample"],

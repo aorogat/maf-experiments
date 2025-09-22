@@ -112,6 +112,11 @@ RATE_LIMITER_KWARGS = {
         check_every_n_seconds=0.2,
         max_bucket_size=20,
     ),
+    "gpt-oss:20b": dict(
+        requests_per_second=5,
+        check_every_n_seconds=0.2,
+        max_bucket_size=20,
+    ),
     "llama3.1": dict(
         requests_per_second=20,
         check_every_n_seconds=0.1,

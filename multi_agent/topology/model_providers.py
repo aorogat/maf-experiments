@@ -18,6 +18,7 @@ MODEL_PROVIDER = {
     "llama3.1": "ollama",
     "deepseek-llm:7b": "ollama",
     "qwen:7b": "ollama",
+    "gpt-oss:20b":  "ollama",
 
     # ---- Google ----
     "gemini-2.0-flash": "google-genai",

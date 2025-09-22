@@ -28,7 +28,8 @@ CONFIG = {
 
     "results_dir": "results",
     # "benchmarks": ["gsm8k", "csqa", "math"],
-    "benchmarks": ["gsm8k", "csqa"],
+    # "benchmarks": ["gsm8k", "csqa"],
+    "benchmarks": ["csqa"],
     # "benchmarks": ["math"],
     "n_gsm8k": None,         # set None for full test set, a number for a subset
     "n_csqa": None,        # set None for full test set, a number for a subset

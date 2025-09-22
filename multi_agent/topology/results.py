@@ -51,8 +51,7 @@ def summarize_tokens(transcripts):
 
 def save_results(
     answers,
-    transcripts,
-    graph,
+    framework,
     rounds,
     model_name,
     task,
@@ -67,6 +66,8 @@ def save_results(
     num_failed_json_parsings_after_retry,
     num_failed_answer_parsings_after_retry,
     runtime,
+    transcripts,
+    graph,
 ):
     """
     Saves experiment results and transcripts into a timestamped JSON file.
@@ -89,6 +90,7 @@ def save_results(
             {
                 "answers": answers,
                 "num_nodes": len(graph.nodes()),
+                "framework": framework,
                 "diameter": nx.diameter(graph),
                 "max_degree": max(dict(graph.degree()).values()),
                 "rounds": rounds,

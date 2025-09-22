@@ -124,6 +124,18 @@
 
 """
 Main entry point for running multi-agent experiments.
+To run:
+```
+python -m multi_agent.topology.runner \
+  --task coloring \
+  --model gpt-4o-mini \
+  --graph_models ws \
+  --graph_size 4 \
+  --samples_per_graph_model 1 \
+  --rounds 4 \
+  --framework literal
+```
+
 Supports multiple frameworks (literal, langgraph, crewai, ...).
 New frameworks can be added easily by dropping a runner file and
 registering it in FRAMEWORK_REGISTRY.
@@ -148,6 +160,7 @@ FRAMEWORK_REGISTRY = {
     "literal": "multi_agent.topology.frameworks.literal_runner",
     "langgraph": "multi_agent.topology.frameworks.langgraph_runner",
     "crewai": "multi_agent.topology.frameworks.crewai_runner",
+    "concordia": "multi_agent.topology.frameworks.concordia_runner",
     # Add new frameworks here later...
 }
 
