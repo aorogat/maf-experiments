@@ -34,6 +34,12 @@ def pick_layout(result_data, user_layout: str) -> str:
         return "spring"
     elif topo in ["dt", "delaunay"]:  # geometric graphs
         return "kamada"
+    elif topo in ["sequential", "crewai-sequential"]:
+        # linear chain looks better in spectral layout
+        return "spectral"
+    elif topo in ["hierarchical", "crewai-hierarchical"]:
+        # tree structure → use kamada or spring for readability
+        return "kamada"
     else:
         return "spring"  # safe default
 

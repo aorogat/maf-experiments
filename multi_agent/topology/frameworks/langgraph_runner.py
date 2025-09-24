@@ -45,7 +45,11 @@ from multi_agent.topology.model_providers import MODEL_PROVIDER
 from multi_agent.topology.results import save_results
 from multi_agent.topology.utils import determine_rounds
 from multi_agent.topology.graph_builder import get_graph
+from dotenv import load_dotenv
+import os
 
+# Load environment variables from .env
+load_dotenv()
 
 async def run_framework(args, commit_hash):
     """

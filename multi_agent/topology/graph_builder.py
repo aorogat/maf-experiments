@@ -113,6 +113,45 @@ def build_graph_from_framework(framework: str, config: dict) -> nx.Graph:
     return nx.Graph()
 
 
+def build_graph_from_hf_sequential(graph_model: str, graph_size: int, num_sample: int) -> nx.Graph:
+    """
+    Build a graph from HF dataset and then rewire as sequential (path graph).
+    This simulates CrewAI's sequential orchestration.
+    """
+    G = build_graph_from_hf(graph_model, graph_size, num_sample)
+
+    # Remove all edges
+    G.remove_edges_from(list(G.edges()))
+
+    # Add path edges
+    for i in range(graph_size - 1):
+        G.add_edge(i, i + 1)
+
+    print(f"[GraphBuilder] Modified graph to sequential path: {graph_model}_{graph_size}_{num_sample}")
+    return G
+
+
+def build_graph_from_hf_hierarchical(graph_model: str, graph_size: int, num_sample: int) -> nx.Graph:
+    """
+    Build a graph from HF dataset and then rewire as hierarchical (balanced 4-ary tree).
+    This simulates CrewAI's hierarchical orchestration.
+    """
+    G = build_graph_from_hf(graph_model, graph_size, num_sample)
+
+    # Remove all edges
+    G.remove_edges_from(list(G.edges()))
+
+    # Build 4-ary tree edges
+    for parent in range(graph_size):
+        for j in range(1, 5):  # 4 children
+            child = 4 * parent + j
+            if child < graph_size:
+                G.add_edge(parent, child)
+
+    print(f"[GraphBuilder] Modified graph to hierarchical 4-ary tree: {graph_model}_{graph_size}_{num_sample}")
+    return G
+
+
 def get_graph(source: str, **kwargs) -> nx.Graph:
     """
     Generic entry point to build graphs.
@@ -130,20 +169,37 @@ def get_graph(source: str, **kwargs) -> nx.Graph:
     -------
     nx.Graph
     """
-    print("[source: hf_all_connected]")
     if source == "hf":
+        print("[source: hf]")
         return build_graph_from_hf(
             graph_model=kwargs["graph_model"],
             graph_size=kwargs["graph_size"],
             num_sample=kwargs["num_sample"],
         )
     elif source == "hf_all_connected":
+        print("[source: hf_all_connected]")
         return build_graph_from_hf_all_connected(
             graph_model=kwargs["graph_model"],
             graph_size=kwargs["graph_size"],
             num_sample=kwargs["num_sample"],
         )
+    elif source == "hf_sequential":
+        print("[source: hf_sequential]")
+        return build_graph_from_hf_sequential(
+            graph_model=kwargs["graph_model"],
+            graph_size=kwargs["graph_size"],
+            num_sample=kwargs["num_sample"],
+        )
+    elif source == "hf_hierarchical":
+        print("[source: hf_hierarchical]")
+        return build_graph_from_hf_hierarchical(
+            graph_model=kwargs["graph_model"],
+            graph_size=kwargs["graph_size"],
+            num_sample=kwargs["num_sample"],
+        )
+
     elif source == "framework":
+        print("[source: framework]")
         return build_graph_from_framework(
             framework=kwargs["framework"], config=kwargs.get("config", {})
         )

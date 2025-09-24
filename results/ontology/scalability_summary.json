@@ -1,5 +1,16 @@
 [
   {
+    "task": "consensus",
+    "framework": "crewai-hierarchical",
+    "graph_model": "hierarchical",
+    "n": 8,
+    "rounds": 7,
+    "score": 0.0,
+    "runtime": 115.65546250343323,
+    "success": true,
+    "error": null
+  },
+  {
     "task": "vertex_cover",
     "framework": "langgraph",
     "graph_model": "ba",
@@ -18,6 +29,17 @@
     "rounds": 19,
     "score": 1.0,
     "runtime": 1463.185597896576,
+    "success": true,
+    "error": null
+  },
+  {
+    "task": "vertex_cover",
+    "framework": "crewai-hierarchical",
+    "graph_model": "hierarchical",
+    "n": 4,
+    "rounds": 8,
+    "score": 0.0,
+    "runtime": 93.95525622367859,
     "success": true,
     "error": null
   },
@@ -144,6 +166,28 @@
   },
   {
     "task": "vertex_cover",
+    "framework": "crewai-hierarchical",
+    "graph_model": "hierarchical",
+    "n": 8,
+    "rounds": 8,
+    "score": 0.5714285714285714,
+    "runtime": 107.07741856575012,
+    "success": true,
+    "error": null
+  },
+  {
+    "task": "matching",
+    "framework": "crewai-sequential",
+    "graph_model": "sequential",
+    "n": 8,
+    "rounds": 8,
+    "score": 0.5,
+    "runtime": 90.2883505821228,
+    "success": true,
+    "error": null
+  },
+  {
+    "task": "vertex_cover",
     "framework": "langgraph",
     "graph_model": "ws",
     "n": 16,
@@ -264,6 +308,39 @@
     "error": null
   },
   {
+    "task": "consensus",
+    "framework": "crewai-sequential",
+    "graph_model": "sequential",
+    "n": 16,
+    "rounds": 31,
+    "score": 0.0,
+    "runtime": 525.5752248764038,
+    "success": true,
+    "error": null
+  },
+  {
+    "task": "coloring",
+    "framework": "crewai-hierarchical",
+    "graph_model": "hierarchical",
+    "n": 4,
+    "rounds": 8,
+    "score": 1.0,
+    "runtime": 85.37105679512024,
+    "success": true,
+    "error": null
+  },
+  {
+    "task": "coloring",
+    "framework": "crewai-hierarchical",
+    "graph_model": "hierarchical",
+    "n": 8,
+    "rounds": 8,
+    "score": 0.8571428571428571,
+    "runtime": 101.30828309059143,
+    "success": true,
+    "error": null
+  },
+  {
     "task": "coloring",
     "framework": "langgraph",
     "graph_model": "ws",
@@ -363,6 +440,17 @@
     "error": null
   },
   {
+    "task": "matching",
+    "framework": "crewai-hierarchical",
+    "graph_model": "hierarchical",
+    "n": 8,
+    "rounds": 8,
+    "score": 0.875,
+    "runtime": 87.91174387931824,
+    "success": true,
+    "error": null
+  },
+  {
     "task": "coloring",
     "framework": "langgraph",
     "graph_model": "ws",
@@ -370,6 +458,17 @@
     "rounds": 8,
     "score": 0.8333333333333334,
     "runtime": 72.66747665405273,
+    "success": true,
+    "error": null
+  },
+  {
+    "task": "leader_election",
+    "framework": "crewai-hierarchical",
+    "graph_model": "hierarchical",
+    "n": 16,
+    "rounds": 9,
+    "score": 0.0,
+    "runtime": 106.99270915985107,
     "success": true,
     "error": null
   },
@@ -418,6 +517,17 @@
     "error": null
   },
   {
+    "task": "consensus",
+    "framework": "crewai-sequential",
+    "graph_model": "sequential",
+    "n": 8,
+    "rounds": 15,
+    "score": 1.0,
+    "runtime": 201.49994349479675,
+    "success": true,
+    "error": null
+  },
+  {
     "task": "leader_election",
     "framework": "concordia",
     "graph_model": "ws",
@@ -440,6 +550,17 @@
     "error": null
   },
   {
+    "task": "coloring",
+    "framework": "crewai-sequential",
+    "graph_model": "sequential",
+    "n": 16,
+    "rounds": 8,
+    "score": 0.9333333333333333,
+    "runtime": 118.73576593399048,
+    "success": true,
+    "error": null
+  },
+  {
     "task": "matching",
     "framework": "concordia",
     "graph_model": "ws",
@@ -447,6 +568,17 @@
     "rounds": 3,
     "score": 0.42,
     "runtime": 620.7747437953949,
+    "success": true,
+    "error": null
+  },
+  {
+    "task": "coloring",
+    "framework": "crewai-sequential",
+    "graph_model": "sequential",
+    "n": 4,
+    "rounds": 8,
+    "score": 1.0,
+    "runtime": 72.18543219566345,
     "success": true,
     "error": null
   },
@@ -484,6 +616,17 @@
     "error": null
   },
   {
+    "task": "consensus",
+    "framework": "crewai-hierarchical",
+    "graph_model": "hierarchical",
+    "n": 16,
+    "rounds": 9,
+    "score": 0.0,
+    "runtime": 162.41406798362732,
+    "success": true,
+    "error": null
+  },
+  {
     "task": "leader_election",
     "framework": "langgraph",
     "graph_model": "ws",
@@ -502,6 +645,17 @@
     "rounds": 11,
     "score": 0.8520408163265306,
     "runtime": 669.9358184337616,
+    "success": true,
+    "error": null
+  },
+  {
+    "task": "leader_election",
+    "framework": "crewai-sequential",
+    "graph_model": "sequential",
+    "n": 16,
+    "rounds": 31,
+    "score": 1.0,
+    "runtime": 666.8893282413483,
     "success": true,
     "error": null
   },
@@ -561,6 +715,17 @@
     "error": null
   },
   {
+    "task": "leader_election",
+    "framework": "crewai-sequential",
+    "graph_model": "sequential",
+    "n": 8,
+    "rounds": 15,
+    "score": 0.0,
+    "runtime": 207.18813228607178,
+    "success": true,
+    "error": null
+  },
+  {
     "task": "consensus",
     "framework": "langgraph",
     "graph_model": "ba",
@@ -594,6 +759,17 @@
     "error": null
   },
   {
+    "task": "consensus",
+    "framework": "crewai-sequential",
+    "graph_model": "sequential",
+    "n": 4,
+    "rounds": 7,
+    "score": 0.0,
+    "runtime": 70.8176543712616,
+    "success": true,
+    "error": null
+  },
+  {
     "task": "vertex_cover",
     "framework": "langgraph",
     "graph_model": "ws",
@@ -601,6 +777,17 @@
     "rounds": 8,
     "score": 0.8333333333333334,
     "runtime": 103.03624653816223,
+    "success": true,
+    "error": null
+  },
+  {
+    "task": "consensus",
+    "framework": "crewai-sequential",
+    "graph_model": "sequential",
+    "n": 4,
+    "rounds": 7,
+    "score": 1.0,
+    "runtime": 61.7185332775116,
     "success": true,
     "error": null
   },
@@ -623,6 +810,28 @@
     "rounds": 8,
     "score": 0.75,
     "runtime": 122.56716895103455,
+    "success": true,
+    "error": null
+  },
+  {
+    "task": "matching",
+    "framework": "crewai-sequential",
+    "graph_model": "sequential",
+    "n": 16,
+    "rounds": 8,
+    "score": 1.0,
+    "runtime": 123.73589849472046,
+    "success": true,
+    "error": null
+  },
+  {
+    "task": "leader_election",
+    "framework": "crewai-sequential",
+    "graph_model": "sequential",
+    "n": 4,
+    "rounds": 7,
+    "score": 0.0,
+    "runtime": 86.63873839378357,
     "success": true,
     "error": null
   },
@@ -693,6 +902,17 @@
     "error": null
   },
   {
+    "task": "matching",
+    "framework": "crewai-sequential",
+    "graph_model": "sequential",
+    "n": 4,
+    "rounds": 8,
+    "score": 1.0,
+    "runtime": 67.0125584602356,
+    "success": true,
+    "error": null
+  },
+  {
     "task": "consensus",
     "framework": "langgraph",
     "graph_model": "ws",
@@ -700,6 +920,39 @@
     "rounds": 11,
     "score": 0.0,
     "runtime": 378.3609323501587,
+    "success": true,
+    "error": null
+  },
+  {
+    "task": "leader_election",
+    "framework": "crewai-hierarchical",
+    "graph_model": "hierarchical",
+    "n": 4,
+    "rounds": 5,
+    "score": 0.0,
+    "runtime": 54.12224292755127,
+    "success": true,
+    "error": null
+  },
+  {
+    "task": "vertex_cover",
+    "framework": "crewai-sequential",
+    "graph_model": "sequential",
+    "n": 16,
+    "rounds": 8,
+    "score": 0.7333333333333333,
+    "runtime": 99.58170223236084,
+    "success": true,
+    "error": null
+  },
+  {
+    "task": "coloring",
+    "framework": "crewai-sequential",
+    "graph_model": "sequential",
+    "n": 8,
+    "rounds": 8,
+    "score": 1.0,
+    "runtime": 97.22578430175781,
     "success": true,
     "error": null
   },
@@ -737,6 +990,17 @@
     "error": null
   },
   {
+    "task": "leader_election",
+    "framework": "crewai-hierarchical",
+    "graph_model": "hierarchical",
+    "n": 8,
+    "rounds": 7,
+    "score": 1.0,
+    "runtime": 77.14003157615662,
+    "success": true,
+    "error": null
+  },
+  {
     "task": "consensus",
     "framework": "langgraph",
     "graph_model": "ws",
@@ -744,6 +1008,17 @@
     "rounds": 15,
     "score": 0.0,
     "runtime": 1010.5265929698944,
+    "success": true,
+    "error": null
+  },
+  {
+    "task": "vertex_cover",
+    "framework": "crewai-sequential",
+    "graph_model": "sequential",
+    "n": 4,
+    "rounds": 8,
+    "score": 0.6666666666666666,
+    "runtime": 80.4197428226471,
     "success": true,
     "error": null
   },
@@ -825,6 +1100,17 @@
     "error": null
   },
   {
+    "task": "matching",
+    "framework": "crewai-hierarchical",
+    "graph_model": "hierarchical",
+    "n": 4,
+    "rounds": 8,
+    "score": 1.0,
+    "runtime": 82.66118907928467,
+    "success": true,
+    "error": null
+  },
+  {
     "task": "consensus",
     "framework": "concordia",
     "graph_model": "ws",
@@ -832,6 +1118,28 @@
     "rounds": 3,
     "score": 1.0,
     "runtime": 228.11365938186646,
+    "success": true,
+    "error": null
+  },
+  {
+    "task": "consensus",
+    "framework": "crewai-hierarchical",
+    "graph_model": "hierarchical",
+    "n": 4,
+    "rounds": 5,
+    "score": 1.0,
+    "runtime": 59.73539733886719,
+    "success": true,
+    "error": null
+  },
+  {
+    "task": "matching",
+    "framework": "crewai-hierarchical",
+    "graph_model": "hierarchical",
+    "n": 16,
+    "rounds": 8,
+    "score": 1.0,
+    "runtime": 112.1843512058258,
     "success": true,
     "error": null
   },
@@ -876,6 +1184,17 @@
     "rounds": 15,
     "score": 0.68,
     "runtime": 910.2663345336914,
+    "success": true,
+    "error": null
+  },
+  {
+    "task": "consensus",
+    "framework": "crewai-sequential",
+    "graph_model": "sequential",
+    "n": 8,
+    "rounds": 15,
+    "score": 0.0,
+    "runtime": 210.2888572216034,
     "success": true,
     "error": null
   },
@@ -935,6 +1254,17 @@
     "error": null
   },
   {
+    "task": "vertex_cover",
+    "framework": "crewai-hierarchical",
+    "graph_model": "hierarchical",
+    "n": 16,
+    "rounds": 8,
+    "score": 0.3,
+    "runtime": 125.50795698165894,
+    "success": true,
+    "error": null
+  },
+  {
     "task": "coloring",
     "framework": "langgraph",
     "graph_model": "dt",
@@ -964,6 +1294,28 @@
     "rounds": 8,
     "score": 0.5,
     "runtime": 88.36832880973816,
+    "success": true,
+    "error": null
+  },
+  {
+    "task": "vertex_cover",
+    "framework": "crewai-sequential",
+    "graph_model": "sequential",
+    "n": 8,
+    "rounds": 8,
+    "score": 0.5714285714285714,
+    "runtime": 172.6441400051117,
+    "success": true,
+    "error": null
+  },
+  {
+    "task": "coloring",
+    "framework": "crewai-hierarchical",
+    "graph_model": "hierarchical",
+    "n": 16,
+    "rounds": 8,
+    "score": 1.0,
+    "runtime": 149.54786825180054,
     "success": true,
     "error": null
   },

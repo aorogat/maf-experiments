@@ -6,7 +6,7 @@ Master runner for scalability experiments across multiple frameworks.
 
 - LangGraph (ws, ba, dt)
 - Concordia (all-to-all connectivity, derived from HF graphs)
-- CrewAI (TODO: to be implemented later)
+- CrewAI (sequential path, hierarchical 4-ary tree)
 
 Usage:
     python -m multi_agent.topology.run_all_experiments
@@ -22,24 +22,22 @@ import pandas as pd
 from pathlib import Path
 
 # --- Configurations ---
-# TASKS = ["coloring", "matching", "vertex_cover", "leader_election", "consensus"]
-TASKS = ["coloring"]
-SIZES = [50]
+TASKS = ["coloring", "matching", "vertex_cover", "leader_election", "consensus"]
+SIZES = [4, 8, 16]
 
 # TASKS = ["coloring"]
 # SIZES = [4]
 
 FRAMEWORKS = {
-    "langgraph_ws": ("langgraph", "ws"),
+    # "langgraph_ws": ("langgraph", "ws"),
     # "langgraph_ba": ("langgraph", "ba"),
     # "langgraph_dt": ("langgraph", "dt"),
     # "concordia": ("concordia", "ws"),   # HF graph, patched to all-connected inside concordia_runner
-    # "crewai_seq": ("crewai", None),     # TODO
-    # "crewai_hier": ("crewai", None),    # TODO
+    # "crewai_seq": ("crewai-sequential", None),   # sequential path
+    "crewai_hier": ("crewai-hierarchical", None), # 4-ary tree
 }
 
 MODEL = "gpt-4o-mini"
-# MODEL = "gpt-oss:20b"
 ROUNDS = 8   # fixed max rounds for all experiments
 SAMPLES = 1
 RESULTS_DIR = Path("results/ontology")
@@ -51,14 +49,25 @@ async def run_experiment(task, fw_key, framework, graph_model, size):
     """
     Run one experiment via subprocess, sequentially.
     """
+    # Pick correct runner module
+    if framework.startswith("crewai"):
+        module = "multi_agent.topology.frameworks.crewai_runner"
+        fw_arg = framework.split("-")[-1]  # "sequential" or "hierarchical"
+    elif framework == "concordia":
+        module = "multi_agent.topology.frameworks.concordia_runner"
+        fw_arg = framework
+    else:
+        module = "multi_agent.topology.runner"
+        fw_arg = framework
+
     cmd = [
-        sys.executable, "-m", "multi_agent.topology.runner",
+        sys.executable, "-m", module,
         "--task", task,
         "--model", MODEL,
         "--graph_size", str(size),
         "--samples_per_graph_model", str(SAMPLES),
         "--rounds", str(ROUNDS),
-        "--framework", framework,
+        "--framework", fw_arg,
     ]
     if graph_model:
         cmd += ["--graph_models", graph_model]
@@ -89,8 +98,8 @@ def aggregate_results():
                 data = json.load(fp)
                 rows.append({
                     "task": data.get("task"),
-                    "framework": data.get("framework", "unknown"),       # NEW: true framework
-                    "graph_model": data.get("graph_generator", "unknown"),  # NEW: topology
+                    "framework": data.get("framework", "unknown"),
+                    "graph_model": data.get("graph_generator", "unknown"),
                     "n": data.get("num_nodes"),
                     "rounds": data.get("rounds"),
                     "score": data.get("score"),
@@ -117,17 +126,11 @@ async def main():
     for task, (fw_key, (framework, graph_model)), size in itertools.product(
         TASKS, FRAMEWORKS.items(), SIZES
     ):
-        # Skip CrewAI until implemented
-        if framework == "crewai":
-            print(f"[SKIP] CrewAI not implemented yet: {fw_key}, Task={task}, Size={size}")
-            continue
-
-        # Skip tasks not supported in Concordia
-        if framework == "concordia" and task in ["coloring", "vertexcover"]:
+        # Skip tasks not suitable for Concordia
+        if framework == "concordia" and task in ["coloring", "vertex_cover"]:
             print(f"[SKIP] Concordia not suitable for {task}, skipping size={size}")
             continue
 
-        # Run sequentially
         await run_experiment(task, fw_key, framework, graph_model, size)
 
     # Aggregate after all runs
