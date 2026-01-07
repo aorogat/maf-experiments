@@ -54,7 +54,7 @@ MASBench enforces reproducibility through fixed Python version requirements (3.1
 
 ```bibtex
 @article{masbench2024,
-  title={MASBench: A Framework-Level Evaluation Suite for Multi-Agent Systems},
+  title={Evaluating Multi-Agent Frameworks: A Taxonomy and Experimental Perspective},
   author={To be updated},
   journal={To be updated},
   year={To be updated},
