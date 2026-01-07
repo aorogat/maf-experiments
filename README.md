@@ -53,11 +53,11 @@ MASBench enforces reproducibility through fixed Python version requirements (3.1
 ## Citation
 
 ```bibtex
-@article{masbench2024,
+@article{masbench2026,
   title={Evaluating Multi-Agent Frameworks: A Taxonomy and Experimental Perspective},
-  author={To be updated},
+  author={Orogat, Abdelghny and Rostam, Ana and Mansour, Essam},
   journal={To be updated},
-  year={To be updated},
+  year={2026},
   doi={To be updated}
 }
 ```
