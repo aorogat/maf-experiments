@@ -34,4 +34,10 @@ try:
 except ImportError:
     pass  # OpenAI SDK not available
 
+try:
+    from .agno import AgnoAgentClass
+    __all__.append('AgnoAgentClass')
+except ImportError:
+    pass  # Agno not available
+
 

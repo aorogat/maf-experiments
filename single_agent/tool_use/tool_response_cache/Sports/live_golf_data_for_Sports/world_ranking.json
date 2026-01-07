@@ -1,0 +1,17 @@
+{
+    "{'year': '2022', 'statId': '186'}": {
+        "error": "",
+        "response": {
+            "year": 2022,
+            "statId": 186,
+            "data": {
+                "total_cases": 150000,
+                "total_deaths": 3000,
+                "recovery_rate": "95%",
+                "new_cases": 500,
+                "new_deaths": 10,
+                "vaccination_rate": "75%"
+            }
+        }
+    }
+}

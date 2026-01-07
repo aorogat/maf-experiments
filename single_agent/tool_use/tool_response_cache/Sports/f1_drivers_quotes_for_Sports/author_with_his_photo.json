@@ -1,0 +1,24 @@
+{
+    "{'driverId': 'raikkonen'}": {
+        "error": "",
+        "response": {
+            "driverId": "raikkonen",
+            "fullName": "Kimi R\u00e4ikk\u00f6nen",
+            "team": "Alfa Romeo Racing",
+            "nationality": "Finnish",
+            "dateOfBirth": "1979-10-17",
+            "careerStats": {
+                "races": 349,
+                "wins": 21,
+                "podiums": 103,
+                "polePositions": 18,
+                "fastestLaps": 46
+            },
+            "currentSeason": {
+                "team": "Alfa Romeo Racing",
+                "position": 12,
+                "points": 0
+            }
+        }
+    }
+}

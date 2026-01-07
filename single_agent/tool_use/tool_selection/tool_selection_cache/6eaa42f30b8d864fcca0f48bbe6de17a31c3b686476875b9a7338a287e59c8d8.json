@@ -1,0 +1,27 @@
+{
+  "query": "I'm planning a golf tournament and I need information about the players. Can you provide me with the world rankings of the top players for the year 2022? Additionally, include the FedExCup points earned by these players and their recent scorecards.",
+  "selected_tools": [
+    "SEO_API_-_Get_Backlinks_GetTopBacklinks",
+    "SEO_API_Keywords_Suggestion_Tool",
+    "SEO_API_Domain_to_IP",
+    "SEO_API_Whois_Domain_Lookup",
+    "SEO_API_Keyword_Density_Checker",
+    "SEO_API_IP_Geolocation_Checker",
+    "SEO_API_Credit_Card_Validator",
+    "SEO_API_SSL_Checker",
+    "SEO_API_Domain_Age_Checker",
+    "SEO_API_Hosting_Checker",
+    "SEO_API_WordPress_Theme_Detector",
+    "SEO_API_Keyword_Rank_Checker",
+    "SEO_API_Meta_Tags_Analyzer",
+    "SEO_API_Open_Graph_Checker",
+    "SEO_API_Get_HTTP_Headers",
+    "SEO_API_Name_Servers_Checker",
+    "SEO_API_Page_Size_Checker",
+    "SEO_API_DNS_Records_Checker",
+    "SEO_API_ASN_Checker",
+    "SEO_API_ISP_Checker"
+  ],
+  "model": "gpt-4o-mini",
+  "max_tools": 20
+}

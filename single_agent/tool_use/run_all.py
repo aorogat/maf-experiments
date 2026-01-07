@@ -1,11 +1,11 @@
 """
-Run all frameworks with different k values to test scalability.
+Run all frameworks with 20 tools on G1_instruction test set.
 
 This script:
-1. Tests all implemented frameworks
-2. Runs with different k values (max_tools): 8, 16, 32, 64, 128, 256, 512, 1024, 1500
-3. Identifies where frameworks fail due to tool limits
-4. Documents scalability characteristics of each framework
+1. Tests all implemented frameworks (LangGraph, CrewAI, AutoGen, OpenAI SDK, Agno)
+2. Runs with 20 tools (k=20) for tool-use evaluation
+3. Uses G1_instruction test set with all queries
+4. Compares framework performance on tool selection and execution
 
 Usage:
     python single_agent/tool_use/run_all.py
@@ -35,12 +35,12 @@ from run_benchmark import run_benchmark
 from utils.printer import print_header, print_step, print_success, print_error, print_warning, print_info
 
 
-# K values to test
-K_VALUES = [8, 16, 32, 64, 128, 256, 512, 1024, 1500]
+# K values to test (20 tools for tool-use evaluation)
+K_VALUES = [20]
 
 # Test configuration
 TEST_SET = "G1_instruction"
-MAX_QUERIES = 3  # Small number for scalability testing
+MAX_QUERIES = None  # None means all queries in the test set
 SERVER_URL = "http://localhost:8080/virtual"
 EVALUATOR_MODEL = "gpt-4o-mini"
 TOOL_SELECTOR_MODEL = "gpt-4o-mini"
@@ -119,27 +119,21 @@ def get_available_frameworks() -> Dict[str, Any]:
     except ImportError as e:
         print_warning(f"OpenAI Agents SDK not available: {e}")
     
-    # OpenAI Agents SDK (when implemented)
-    # try:
-    #     from agents.openai import OpenAIAgentsAgent
-    #     frameworks['openai'] = {
-    #         'class': OpenAIAgentsAgent,
-    #         'name': 'OpenAI Agents SDK',
-    #         'params': {...}
-    #     }
-    # except ImportError:
-    #     pass
-    
-    # Agno (when implemented)
-    # try:
-    #     from agents.agno import AgnoAgent
-    #     frameworks['agno'] = {
-    #         'class': AgnoAgent,
-    #         'name': 'Agno',
-    #         'params': {...}
-    #     }
-    # except ImportError:
-    #     pass
+    # Agno
+    try:
+        from agents.agno import AgnoAgentClass
+        frameworks['agno'] = {
+            'class': AgnoAgentClass,
+            'name': 'Agno',
+            'params': {
+                'model': 'gpt-4o-mini',
+                'server_url': SERVER_URL,
+                'temperature': 0.0,
+                'verbose': False  # Reduce verbosity for batch runs
+            }
+        }
+    except ImportError as e:
+        print_warning(f"Agno not available: {e}")
     
     # OpenAgents (when implemented)
     # try:
@@ -181,10 +175,10 @@ def test_framework_scalability(
         'k_results': {}
     }
     
-    print_header(f"Testing {framework_info['name']} Scalability")
+    print_header(f"Testing {framework_info['name']}")
     
     for k in k_values:
-        print_step(1, len(k_values), f"Testing with k={k}")
+        print_step(1, len(k_values), f"Running evaluation with {k} tools")
         
         try:
             # Create agent instance
@@ -245,12 +239,12 @@ def test_framework_scalability(
 
 def print_scalability_summary(all_results: Dict[str, Dict[str, Any]]):
     """
-    Print summary of scalability test results.
+    Print summary of framework evaluation results.
     
     Args:
         all_results: Dictionary mapping framework names to their test results
     """
-    print_header("Scalability Test Summary")
+    print_header("Framework Evaluation Summary")
     
     for framework_name, results in all_results.items():
         framework_display = results['framework_display_name']
@@ -258,40 +252,25 @@ def print_scalability_summary(all_results: Dict[str, Dict[str, Any]]):
         
         print_info(f"\n{framework_display}:")
         
-        # Find max successful k
-        successful_ks = [k for k, r in k_results.items() if r['status'] == 'success']
-        failed_ks = [k for k, r in k_results.items() if r['status'] == 'failed']
-        
-        if successful_ks:
-            max_k = max(successful_ks)
-            print_success(f"  ✓ Max successful k: {max_k}")
-            
-            # Show performance at different k values
-            for k in [8, 64, 128, 256, 512, 1024, 1500]:
-                if k in successful_ks:
-                    r = k_results[k]
-                    print_info(f"    k={k:4d}: SoPR={r['average_sopr_score']:.3f}, "
-                              f"API={r['average_api_call_score']:.3f}, "
-                              f"Time={r['elapsed_time']:.1f}s")
+        # Check results for k=20
+        if 20 in k_results:
+            r = k_results[20]
+            if r['status'] == 'success':
+                print_success(f"  ✓ Successfully completed evaluation")
+                print_info(f"    Total Queries: {r['total_queries']}")
+                print_info(f"    Solved: {r['solved_count']}/{r['total_queries']}")
+                print_info(f"    Average SoPR: {r['average_sopr_score']:.3f}")
+                print_info(f"    Average API Call Score: {r['average_api_call_score']:.3f}")
+                print_info(f"    Total Time: {r['elapsed_time']:.1f}s")
+            else:
+                print_error(f"  ✗ Failed: {r['error']}")
         else:
-            print_error(f"  ✗ No successful runs")
-        
-        if failed_ks:
-            first_failure = min(failed_ks)
-            print_error(f"  ✗ First failure at k={first_failure}")
-            
-            # Show error message
-            if first_failure in k_results:
-                error = k_results[first_failure]['error']
-                if '128' in error or 'too long' in error.lower():
-                    print_warning(f"    → Likely OpenAI tool limit (128 tools)")
-                else:
-                    print_info(f"    → Error: {error[:100]}...")
+            print_error(f"  ✗ No results for k=20")
 
 
 def save_scalability_results(all_results: Dict[str, Dict[str, Any]], output_dir: Optional[str] = None):
     """
-    Save scalability test results to JSON file.
+    Save framework evaluation results to JSON file.
     
     Args:
         all_results: Dictionary mapping framework names to their test results
@@ -315,22 +294,22 @@ def save_scalability_results(all_results: Dict[str, Dict[str, Any]], output_dir:
         'frameworks': all_results
     }
     
-    output_file = output_dir / "scalability_test_results.json"
+    output_file = output_dir / "framework_evaluation_results.json"
     
     with open(output_file, 'w') as f:
         json.dump(results_data, f, indent=2)
     
-    print_success(f"Scalability results saved to {output_file}")
+    print_success(f"Evaluation results saved to {output_file}")
 
 
 def main():
-    """Main function to run scalability tests on all frameworks."""
-    print_header("Framework Scalability Testing")
+    """Main function to run all frameworks with 20 tools on G1_instruction."""
+    print_header("Framework Tool-Use Evaluation")
     
     print_info(f"Test Configuration:")
     print_info(f"  Test Set: {TEST_SET}")
-    print_info(f"  Max Queries: {MAX_QUERIES}")
-    print_info(f"  K Values: {K_VALUES}")
+    print_info(f"  Max Queries: {'All queries' if MAX_QUERIES is None else MAX_QUERIES}")
+    print_info(f"  Tools (k): {K_VALUES}")
     print_info(f"  Server URL: {SERVER_URL}")
     print()
     

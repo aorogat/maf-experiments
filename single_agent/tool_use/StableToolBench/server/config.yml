@@ -1,8 +1,8 @@
 # API key is loaded from .env file (OPENAI_API_KEY)
 # Leave empty here - will be read from environment variable
 api_key: 
-api_base: http://localhost:5001/v1 #If you are using the Groq or local router
-# api_base: https://api.openai.com/v1 # To use openai api
+# api_base: http://localhost:5001/v1 #If you are using the Groq or local router
+api_base: https://api.openai.com/v1 # To use openai api
 model: gpt-4o-mini # Model to use
 temperature: 0 # Temperature for the model
 toolbench_url: http://8.130.32.149:8080/rapidapi # Toolbench url

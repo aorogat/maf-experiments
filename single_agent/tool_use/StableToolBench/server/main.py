@@ -318,56 +318,42 @@ def fake_response_function_chat(api_example, tool_input, api_doc):
     api_doc: dict, api document
     '''
     system_prompt = '''
-Imagine you are an API Server operating within a specialized tool, which contains a collection of distinct APIs. Your role is to deeply understand the function of each API based on their descriptions in the API documentation. As you receive specific inputs for individual API calls within this tool, analyze these inputs to determine their intended purpose. Your task is to craft a JSON formatted response that aligns with the expected output of the API, guided by the provided examples.\n
+Imagine you are an API Server operating within a specialized tool, which contains a collection of distinct APIs. Your role is to simulate realistic API responses based on the API's functionality and the input parameters provided.\n
 Your responses must adhere to a specific JSON structure, which is as follows:\n
 {
     "error": "",
     "response": "<Your_Response>"
 }\n
-The error field should remain empty, indicating no errors in processing. The response field should contain the content you formulate based on the API's functionality and the input provided. Ensure that your responses are meaningful, directly addressing the API's intended functionality. If the provided examples are mostly error messages or lack substantial content, use your judgment to create relevant and accurate responses. The key is to maintain the JSON format's integrity while ensuring that your response is an accurate reflection of the API's intended output within the tool.\n
+The error field should remain empty, indicating no errors in processing. The response field should contain REALISTIC SIMULATED DATA that matches what the actual API would return, NOT a description or explanation of what the API does.\n
+
+CRITICAL INSTRUCTIONS:
+- Generate ACTUAL DATA, not descriptions. For example:
+  * Distance APIs: Return actual distance values (e.g., "5.2 km", "3.1 miles")
+  * Weather APIs: Return actual weather data (e.g., temperature, conditions)
+  * Search APIs: Return actual search results (e.g., list of items, URLs)
+  * Calculation APIs: Return actual calculated results (e.g., numbers, formulas)
+- Your response should be realistic data that would be returned by the actual API
+- Use the input parameters to generate contextually appropriate fake data
+- If the API returns structured data (JSON objects, arrays), simulate that structure
+- Keep responses concise but data-rich (50-200 words depending on API type)
+- If the api response example is null or ineffective, use your judgment to create realistic simulated data based on the API's purpose
+
 Please note that your answer should not contain anything other than a json format object, which should be parsable directly to json.
-Note that:
-- your response should be around 100 to 200 words, containing rich information given the api input parameters. Keep Your answer short and simple.
-- your response must be effective and have practical content.
-- if the api response example if null or ineffective, ignore the example and give your independent response.
+Here are examples:
 
-API calls may fail for various reasons, such as invalid input parameters, authentication issues, or server errors. Your goal is to generate a response that accurately reflects the API's intended functionality, even if the input parameters are incorrect. Your response should be informative and relevant to the API's purpose, providing a clear and concise explanation of the expected output based on the input provided.
-Here is an example:
-API doc
-{
-    "name": "properties/get-broadband",
-    "url": "https://zoopla.p.rapidapi.com/properties/get-broadband",
-    "description": "Get broadband information",
-    "method": "GET",
-    "required_parameters": [
-        {
-            "name": "listing_id",
-            "type": "NUMBER",
-            "description": "The value of listing_id field returned in .../properties/list endpoint",
-            "default": "56354192"
-        }
-    ],
-    "optional_parameters": [],
-    "code": "import requests\n\nurl = \"https://zoopla.p.rapidapi.com/properties/get-broadband\"\nquerystring = {\"listing_id\": \"56354192\"}\n\nheaders = {\n            \"X-RapidAPI-Key\": \"SIGN-UP-FOR-KEY\",\n            \"X-RapidAPI-Host\": \"zoopla.p.rapidapi.com\"\n        }\n\nresponse = requests.get(url, headers=headers, params=querystring)\nprint(response.json())\n",
-    "convert_code": "import requests\n\nurl = \"https://zoopla.p.rapidapi.com/properties/get-broadband\"\nquerystring = {\"listing_id\": \"56354192\"}\n\nheaders = {\n            \"X-RapidAPI-Key\": \"SIGN-UP-FOR-KEY\",\n            \"X-RapidAPI-Host\": \"zoopla.p.rapidapi.com\"\n        }\n\nresponse = requests.get(url, headers=headers, params=querystring)\nprint(response.json())\n",
-    "test_endpoint": "",
-    "statuscode": 200,
-    "schema": {}
-}
-Request:
-    data = {
-        "category": "Business",
-        "tool_name": "zoopla_v2",
-        "api_name": "properties_get_broadband",
-        "tool_input": {'listing_id': '456789', "abdc": 11123},
-        "strip": "",
-        "toolbench_key": "xxx"
-    }
-Response:
-    {"error":"Function executing from toolenv.tools.Business.zoopla_v2.api import properties_get_broadband error...\nproperties_get_broadband() got an unexpected keyword argument 'abdc'","response":""}
+Example 1 - Distance/Routing API:
+Input: {'start_lat': 0.365816, 'start_lon': 32.529226, 'end_lat': 0.324938, 'end_lon': 32.575236}
+Expected Response: {"error": "", "response": "Distance: 5.8 km. Estimated travel time: 12 minutes by car. Route coordinates: [0.365816, 32.529226] -> [0.324938, 32.575236]. Alternative routes available."}
 
+Example 2 - Weather API:
+Input: {'city': 'London', 'country': 'UK'}
+Expected Response: {"error": "", "response": "Current weather in London, UK: Temperature 15°C, Condition: Partly Cloudy, Humidity: 65%, Wind Speed: 12 km/h, Visibility: 10 km. Forecast: Tomorrow 18°C, Sunny."}
 
-Your will also be given successful examples of API calls and their expected outputs, based on which you will generate the response for the given input.
+Example 3 - Search API:
+Input: {'query': 'restaurants', 'location': 'New York'}
+Expected Response: {"error": "", "response": "Found 15 restaurants near New York: 1) Joe's Pizza (0.5 km, 4.5 stars), 2) The Smith (1.2 km, 4.7 stars), 3) Le Bernardin (2.1 km, 4.9 stars). Showing top 3 results."}
+
+IMPORTANT: Generate actual data values, not descriptions. Use the input parameters to create realistic, contextually appropriate fake data that simulates what the real API would return.
     '''
     system_prompt = {"role": "system", "content": system_prompt}
     # user prompt, truncated to 2048 characters if too long

@@ -1,0 +1,25 @@
+{
+  "query": "I am organizing a Formula 1 themed party and I need some quotes by Daniel Ricciardo to put up as decorations. Can you fetch a specific quote by its ID? The driver ID is 'ricciardo' and the quote ID is '59'. Additionally, I would like to display a photo of Daniel Ricciardo along with his ID. Can you provide that information as well?",
+  "selected_tools": [
+    "Famous_Quotes_Get_Random_Quotes",
+    "Famous_Quotes_List_Categories",
+    "Instagram_Post",
+    "YouTube_Video_Downloader_4K_and_8K_MP3_STEP3startDownload",
+    "YouTube_Video_Downloader_4K_and_8K_MP3_STEP2getProgress",
+    "YouTube_Video_Downloader_4K_and_8K_MP3_STEP1uniqueDownloadId",
+    "Image_Recognition_-_automatic_picture_labeling_classify_image_co",
+    "Random_Avatar_API_Avatar_Url",
+    "Random_Avatar_API_Random_AI_Avatar",
+    "Photo_Recognition_Net_recognitions",
+    "Web_Scrapper_go",
+    "Data_Fake_Generator_Barcode_EAN8",
+    "Data_Fake_Generator_Color_Name",
+    "Data_Fake_Generator_Safe_Color_Name",
+    "Data_Fake_Generator_Fake_Company",
+    "Data_Fake_Generator_Credit_Card",
+    "Data_Fake_Generator_Currency",
+    "Data_Fake_Generator_File"
+  ],
+  "model": "gpt-4o-mini",
+  "max_tools": 20
+}

@@ -1,195 +1,71 @@
 # MASBench: Multi-Agent Systems Benchmark Suite
 
 [![Python 3.12.3](https://img.shields.io/badge/python-3.12.3-blue.svg)](https://www.python.org/downloads/)
-[![Dependencies](https://img.shields.io/badge/dependencies-pinned-green.svg)](requirements.lock)
-[![Research](https://img.shields.io/badge/status-research-orange.svg)]()
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Research](https://img.shields.io/badge/status-research-orange.svg)]()
 
-MASBench is a comprehensive benchmark suite for systematic evaluation of large language model (LLM)-based single-agent and multi-agent systems (MAS) across multiple dimensions: memory architectures, reasoning strategies, tool integration, coordination protocols, specialization patterns, and framework overhead analysis.
+MASBench is a framework-level evaluation suite that standardizes the systematic assessment of single-agent and multi-agent system architectures, orchestration mechanisms, and coordination protocols across diverse LLM-based agent frameworks.
 
-## Overview
+## Conceptual Scope
 
-This repository supports rigorous, reproducible experimentation where each study is self-contained and independently documented. The modular architecture enables researchers to focus on specific aspects of agent behavior without requiring understanding of the entire codebase.
+MASBench addresses research questions concerning architectural trade-offs, orchestration overhead, coordination behavior, and scalability characteristics in LLM-based agent systems. The framework standardizes execution environments, evaluation protocols, and measurement methodologies to enable controlled comparison across different agent frameworks. By isolating framework behavior from task complexity and model capabilities, MASBench supports rigorous analysis of system design decisions and their performance implications.
 
----
+## Architectural Perspective
 
-## 📁 Repository Structure
+MASBench organizes its evaluation space through a taxonomy of three primary framework paradigms:
 
+- **Graph-based orchestration**: Frameworks that model agent workflows as directed graphs, where nodes represent computational steps and edges define control flow and data dependencies.
+
+- **Role-based agent systems**: Frameworks that structure agents around specialized roles or personas, with coordination mechanisms that route tasks and information based on role assignments.
+
+- **Environment- or simulation-mediated systems**: Frameworks that situate agents within shared environments or simulations, where interaction occurs through environment state and action interfaces.
+
+These categories represent distinct architectural approaches to agent coordination and orchestration. MASBench evaluates frameworks through this lens, examining how each paradigm handles memory management, task routing, error recovery, and scalability.
+
+## Evaluation Methodology Overview
+
+MASBench integrates established benchmarks and evaluation protocols to assess framework behavior. The suite normalizes execution environments, logging mechanisms, and configuration interfaces to ensure consistent measurement across frameworks. Where possible, MASBench isolates framework-specific behavior from model capabilities and task complexity.
+
+Evaluation proceeds along two dimensions: experimental assessment of capabilities (memory retention, planning accuracy, coordination efficiency) and architectural analysis of system design (orchestration patterns, communication topologies, resource utilization). Tool use is integrated as part of the evaluation infrastructure to support capability assessment, but is not itself subject to experimental evaluation due to model-dominated behavior and interface standardization constraints.
+
+## Experiment Index
+
+### Single-Agent Evaluation
+
+- [Memory](single_agent/memory/readme.md)
+- [Planning](single_agent/reasoning/README.md)
+- [Specialization](single_agent/specialization/readme.md)
+- [Framework Overhead](single_agent/framework_overhead/README.md)
+- [Tool Use](single_agent/tool_use/README.md) (architectural)
+
+### Multi-Agent Evaluation
+
+- [Coordination & Topology](multi_agent/topology/README.md)
+
+## Results & Artifacts
+
+Experimental results are preserved in `results/` for transparency and reproducibility. The main README does not summarize or interpret findings; analysis and interpretation are documented within individual experiment directories and associated publications.
+
+## Reproducibility & Execution Scope
+
+MASBench enforces reproducibility through fixed Python version requirements (3.12.3), pinned dependency versions (specified in `requirements.lock`), and controlled execution environments. The suite abstracts LLM backends to support cost-aware execution and framework-agnostic evaluation. All experiments are designed to execute from a clean Python environment with minimal external configuration.
+
+## Citation
+
+```bibtex
+@article{masbench2024,
+  title={MASBench: A Framework-Level Evaluation Suite for Multi-Agent Systems},
+  author={To be updated},
+  journal={To be updated},
+  year={To be updated},
+  doi={To be updated}
+}
 ```
-.
-├── single_agent/          # Single-agent capability evaluations
-├── multi_agent/           # Multi-agent coordination experiments
-├── benchmarks/            # Benchmark definitions and evaluation logic
-├── llms/                  # LLM backend abstractions and adapters
-├── results/               # Experimental outputs and analysis artifacts
-├── data/                  # Benchmark datasets
-├── logs/                  # Runtime logs (not required for reproduction)
-├── requirements.lock      # Pinned dependency versions
-└── README.md             # This file
-```
 
----
+*To be updated upon publication.*
 
-## 🔬 Experimental Design Philosophy
+## Contact
 
-Each experiment is organized as a **standalone module** containing:
-
-- **Clear scope definition** – Precise research questions and hypotheses
-- **Isolated execution scripts** – Self-contained runners with minimal dependencies
-- **Local documentation** – Dedicated `README.md` with:
-  - Task specifications
-  - Framework configurations
-  - Reproduction instructions
-  - Result interpretation guidelines
-
-> **Navigation:** Explore experiments through their local README files rather than treating this as a monolithic codebase.
-
----
-
-## 🧪 Single-Agent Experiments
-
-**Location:** `single_agent/`
-
-### Available Studies
-
-#### Memory Evaluation
-**Path:** `single_agent/memory/`
-
-Comprehensive analysis of memory architectures using MemoryAgentBench:
-- Long-term memory with vector database retrieval
-- Short-term accumulation-based memory
-- Hybrid memory configurations
-- Cross-framework memory behavior comparison
-
-#### Framework Overhead Analysis
-**Path:** `single_agent/framework_overhead/`
-
-Quantifies runtime and orchestration costs introduced by agent frameworks, isolated from task complexity variables.
-
-#### Reasoning & Planning
-**Path:** `single_agent/reasoning/`
-
-Evaluates reasoning accuracy, failure mode analysis, and computational efficiency across:
-- GSM8K (mathematical reasoning)
-- CSQA (commonsense reasoning)
-- Multiple reasoning strategies (CoT, ReAct, self-consistency)
-
-#### Specialization & Role Prompting
-**Path:** `single_agent/specialization/`
-
-Investigates the impact of role assignment and expert augmentation on:
-- Predictive task performance
-- Analytical reasoning quality
-- Domain-specific knowledge application
-
-#### Tool Use Integration
-**Path:** `single_agent/tool_use/`
-
-Benchmarks agent-tool interaction patterns using StableToolBench:
-- Tool selection strategies
-- Error recovery mechanisms
-- Multi-tool coordination
-
----
-
-## 🤖 Multi-Agent Experiments
-
-**Location:** `multi_agent/`
-
-### Research Focus
-
-- Communication topology design and analysis
-- Consensus formation mechanisms
-- Leader election protocols
-- Scalability characteristics
-- Framework-specific orchestration patterns
-
-### Primary Entry Point
-
-**Topology & Coordination:** `multi_agent/topology/`
-
-Includes visualization utilities, statistical analysis scripts, and framework-specific execution runners.
-
----
-
-## 📊 Results & Artifacts
-
-**Location:** `results/`
-
-Contains:
-- Per-framework result directories
-- Per-configuration experimental outputs
-- LaTeX-formatted tables for publication
-- Analytical figures (memory curves, coordination efficiency, etc.)
-
-Raw result files are preserved for **transparency and reproducibility** but are not required to understand or execute experiments.
-
----
-
-## ⚙️ Environment & Reproducibility
-
-### Requirements
-
-- **Python Version:** `3.12.3`
-- **Dependencies:** Exact library versions specified in `requirements.lock`
-
-### Setup Instructions
-
-1. **Environment Configuration:**
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   pip install -r requirements.lock
-   ```
-
-2. **Tmux Workflows** (optional):
-   See `tmux.md` for distributed execution patterns
-
-All experiments are designed for **full reproducibility** from a clean Python environment.
-
----
-
-## 🚀 Getting Started
-
-### Quick Start Guide
-
-1. **Choose an experiment:**
-   - Memory systems → `single_agent/memory/`
-   - Agent coordination → `multi_agent/topology/`
-   - Tool integration → `single_agent/tool_use/`
-
-2. **Read the local README:**
-   Each experiment folder contains detailed setup and execution instructions
-
-3. **Inspect results:**
-   ```bash
-   ls ../../results/memory/
-   ```
-
----
-
-## 📄 Citation & Usage
-
-MASBench supports ongoing research in multi-agent systems, memory architectures, and LLM evaluation methodologies.
-
-If you use or extend this benchmark suite, please cite the corresponding papers.
-
----
-
-## 🤝 Contributing
-
-Contributions are welcome. Please:
-- Maintain the modular structure
-- Include standalone README files for new experiments
-- Ensure reproducibility with pinned dependencies
-- Follow existing code organization patterns
-
----
-
-## 📧 Contact
-
-Abdelghny Orogat Abdelghny.Orogat@concordia.ca
-
----
-
-**Note:** This repository is intentionally modular. You do not need to understand the entire codebase to reproduce or extend a specific study. Each experiment is designed to stand on its own.
+Abdelghny Orogat  
+Concordia University  
+Abdelghny.Orogat@concordia.ca

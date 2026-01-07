@@ -20,7 +20,7 @@ except ImportError as e:
         pass
 
 try:
-    from .agent import AgnoAgent as AgnoAgentClass
+    from .agent import AgnoAgentClass
     __all__ = ['AgnoAgentClass', 'AGNO_AVAILABLE', 'AGNO_IMPORT_ERROR']
 except ImportError:
     __all__ = ['AGNO_AVAILABLE', 'AGNO_IMPORT_ERROR']

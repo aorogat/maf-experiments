@@ -1,0 +1,15 @@
+{
+    "{'driverId': 'ricciardo', 'quoteId': '59'}": {
+        "error": "",
+        "response": {
+            "driverId": "ricciardo",
+            "quoteId": "59",
+            "quote": "You can't just be a driver, you have to be a racer.",
+            "author": "Daniel Ricciardo",
+            "team": "McLaren",
+            "season": "2023",
+            "race": "Monaco Grand Prix",
+            "date": "2023-05-28"
+        }
+    }
+}

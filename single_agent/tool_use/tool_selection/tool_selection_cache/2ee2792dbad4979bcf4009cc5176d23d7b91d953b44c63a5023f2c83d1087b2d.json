@@ -1,0 +1,27 @@
+{
+  "query": "I'm planning to place some bets on today's soccer matches. Can you provide me with the best goal prediction, the best 2 sign prediction, and the best 1 sign prediction? Additionally, I would like to know if there are any good odds available for betting. Please include the country name, league name, team names, bet, bet quote, and match date in the response.",
+  "selected_tools": [
+    "The_Numerology_API_Sign_Parent_Child_Information",
+    "The_Numerology_API_Sign_Career_Money_Information",
+    "Domain_Age_Get_the_age_and_registration_date_of_a_domain",
+    "The_Numerology_API_Sign_Love_Information",
+    "The_Numerology_API_Sign_Friendship_Information",
+    "The_Numerology_API_Sign_Facts_and_Personality_Traits",
+    "The_Numerology_API_Sign_Spirituality_Information",
+    "The_Numerology_API_Sign_Health_Information",
+    "The_Numerology_API_Sign_Lifestyle_Information",
+    "Reddit_-_Track_the_mentions_and_conversations_about_your_busines",
+    "Placeholder_text_API_for_your_application_Generate_placeholder_t",
+    "Youtube_Captions_Generate_Captions_for_Any_YT_Video",
+    "YouTube_Powerfull_API_GET_Playlist_HTML_FILE_Provide_The_Playlis",
+    "YouTube_Powerfull_API_GET_Video_s_Full_Details_Provide_the_Video",
+    "YouTube_Powerfull_API_GET_Video_s_Basic_Information_Provide_Vide",
+    "factual_knowledge_graph_-_wikipedia_Context_between_multiple_ent",
+    "oDesk_APIs_Generate_Time_Reports_for_a_Specific_Team",
+    "Youtube_Subtitle_Downloader_and_Translator_languages",
+    "Get_Keyword_Suggestions_for_SEO_and_PPC_getKeywordIdeas",
+    "The_Numerology_API_Monthly_Career_Horoscope"
+  ],
+  "model": "gpt-4o-mini",
+  "max_tools": 20
+}

@@ -68,14 +68,28 @@ This document tracks the implementation status of different agent frameworks for
   - Returns `called_apis` for API scoring
   - Similar to LangGraph/CrewAI/AutoGen: depends on LLM for tool selection, limited by 128-tool constraint
 
-### 🔲 Agno
-- **Status**: Not Started
+### ✅ Agno
+- **Status**: Implemented (with documented framework limitation)
 - **Priority**: Medium
+- **Location**: `agents/agno/`
+- **Files**:
+  - `agent.py`: AgnoAgentClass implementation using Agno's Agent
+  - Tool conversion: Converts LangChain tools to Python functions (Agno auto-converts to tools)
+- **Test File**: `test_agno.py`
 - **Notes**:
-  - Agent framework with tool calling support
-  - Check tool integration approach
-  - Test if it has built-in tool filtering
-  - Verify scalability characteristics
+  - Uses Agno's Agent with async execution
+  - Converts LangChain tools to Python functions (Agno automatically creates tools)
+  - Uses centralized ToolSelector
+  - Extracts tool calls from response object (structure may vary)
+  - Supports tool name sanitization (OpenAI compliance)
+  - Returns `called_apis` for API scoring (will be empty - see limitation below)
+  - Similar to LangGraph/CrewAI/AutoGen/OpenAI SDK: depends on LLM for tool selection, limited by 128-tool constraint
+- **Tool Execution Tracking**:
+  - Agno executes tools automatically within its native runtime (as per Agno documentation)
+  - Our adapter tracks tool executions by wrapping tool functions and recording when they are called
+  - Wrapper functions call the original LangChain tool functions (which call StableToolBench server)
+  - Executions are tracked in `self._executed_tools` and used to populate `called_apis` for API scoring
+  - This ensures proper tracking and reporting of tool executions in the benchmark
 
 ### ❌ OpenAgents
 - **Status**: Excluded from experiments
@@ -173,10 +187,18 @@ For each new framework, follow this checklist:
 - Similar to LangGraph/CrewAI/AutoGen: depends on LLM for tool selection, limited by 128-tool constraint
 - Extracts tool calls from RunResult for accurate API tracking
 
-### Agno (Planned)
-- Check tool integration approach
-- Verify if it has built-in tool filtering
-- Test scalability characteristics
+### Agno
+- Uses Agno's Agent with async execution
+- Converts LangChain tools to Python functions (Agno automatically creates tools)
+- Tool names sanitized to 64 characters (OpenAI limit)
+- Structured metadata stored (tool_name, api_name, category)
+- No built-in tool filtering (relies on ToolSelector)
+- Similar to LangGraph/CrewAI/AutoGen/OpenAI SDK: depends on LLM for tool selection, limited by 128-tool constraint
+- **Tool Execution Tracking**: Agno executes tools automatically, and our adapter tracks executions
+  - Wrapper functions are called by Agno when tools are executed
+  - Wrapper functions call original LangChain tool functions (which call StableToolBench server)
+  - Executions are tracked in `self._executed_tools` and used for API scoring
+  - This ensures proper tracking and reporting of tool executions
 
 ### OpenAgents (Excluded)
 - **Status**: Excluded from experiments (not compatible with evaluation setting)
@@ -210,7 +232,7 @@ Use `run_all.py` to test all frameworks with different k values:
 1. ✅ **Implement CrewAI** (completed - tool call extraction needs enhancement)
 2. ✅ **Implement AutoGen** (completed)
 3. ✅ **Implement OpenAI Agents SDK** (completed)
-4. **Implement Agno** (medium priority)
+4. ✅ **Implement Agno** (completed)
 5. ❌ **OpenAgents** (excluded - not compatible with evaluation setting)
 6. **Enhance CrewAI tool call extraction** (medium priority - for accurate API scoring)
 7. **Run scalability tests** on all frameworks using `run_all.py`
@@ -226,4 +248,5 @@ Use `run_all.py` to test all frameworks with different k values:
 - **CrewAI Example**: `agents/crewai/` and `test_crewai.py`
 - **AutoGen Example**: `agents/autogen/` and `test_autogen.py`
 - **OpenAI SDK Example**: `agents/openai_sdk/` and `test_openai_sdk.py`
+- **Agno Example**: `agents/agno/` and `test_agno.py`
 

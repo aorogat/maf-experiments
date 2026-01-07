@@ -1,0 +1,48 @@
+{
+    "{'tournId': '475', 'year': '2022'}": {
+        "error": "",
+        "response": {
+            "tournament_id": "475",
+            "year": "2022",
+            "name": "World Championship",
+            "location": "Las Vegas, NV",
+            "start_date": "2022-06-01",
+            "end_date": "2022-06-15",
+            "teams": [
+                {
+                    "team_id": "1",
+                    "team_name": "Team A",
+                    "matches_played": 5,
+                    "wins": 4,
+                    "losses": 1
+                },
+                {
+                    "team_id": "2",
+                    "team_name": "Team B",
+                    "matches_played": 5,
+                    "wins": 3,
+                    "losses": 2
+                },
+                {
+                    "team_id": "3",
+                    "team_name": "Team C",
+                    "matches_played": 5,
+                    "wins": 2,
+                    "losses": 3
+                },
+                {
+                    "team_id": "4",
+                    "team_name": "Team D",
+                    "matches_played": 5,
+                    "wins": 1,
+                    "losses": 4
+                }
+            ],
+            "finals": {
+                "winning_team": "Team A",
+                "runner_up": "Team B",
+                "final_score": "3-1"
+            }
+        }
+    }
+}

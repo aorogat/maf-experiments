@@ -658,12 +658,27 @@ The following frameworks are implemented and evaluated in this benchmark:
 - **CrewAI**: Multi-agent framework configured for single-agent use
 - **AutoGen**: Microsoft's multi-agent conversation framework
 - **OpenAI Agents SDK**: OpenAI's framework for building agentic applications
+- **Agno**: Agent framework with automatic tool conversion (see limitation below)
 
 All included frameworks:
 - Support binding a large set of tools to a single agent
 - Allow the LLM to select and call tools dynamically from the available set
 - Are compatible with the centralized ToolSelector approach
 - Can handle tool selection under tool overload conditions
+
+#### Framework-Specific Notes
+
+**Agno - Tool Execution Tracking**:
+
+Agno is included in the benchmark and properly tracks tool executions:
+
+- **Tool Detection**: Agno successfully detects tool calls in LLM outputs (tool calls appear in message objects)
+- **Tool Execution**: Agno executes tools automatically within its native runtime (as per Agno documentation)
+- **Execution Tracking**: Our benchmark adapter tracks tool executions by wrapping tool functions and recording when they are called by Agno
+- **Wrapper Functions**: The wrapper functions call the original LangChain tool functions (which call the StableToolBench virtual server) and track executions in `self._executed_tools`
+- **API Scoring**: Executions are properly tracked and used to populate `called_apis` for accurate API scoring
+
+This ensures that tool executions are properly tracked and reported in the benchmark, allowing for accurate evaluation of Agno's tool-calling capabilities.
 
 ### Excluded Frameworks
 
