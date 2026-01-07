@@ -1,8 +1,8 @@
-# MASBench: Multi-Agent Systems Benchmark Suite
-
 [![Python 3.12.3](https://img.shields.io/badge/python-3.12.3-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Research](https://img.shields.io/badge/status-research-orange.svg)]()
+
+![MASBench](slogan.png)
 
 MASBench is a framework-level evaluation suite that standardizes the systematic assessment of single-agent and multi-agent system architectures, orchestration mechanisms, and coordination protocols across diverse LLM-based agent frameworks.
 
