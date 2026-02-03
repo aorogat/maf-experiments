@@ -4,68 +4,79 @@
 
 ![MASBench](slogan.png)
 
-MASBench is a framework-level evaluation suite that standardizes the systematic assessment of single-agent and multi-agent system architectures, orchestration mechanisms, and coordination protocols across diverse LLM-based agent frameworks.
+MASBench is a unified benchmark suite for systematically analyzing architectural design choices in LLM-based agent frameworks — spanning orchestration, memory, planning, specialization, and multi-agent coordination under controlled execution. The suite isolates framework-level effects from model capabilities and task complexity, enabling controlled evaluation of single-agent and multi-agent architectural design choices.
 
-## Conceptual Scope
+## Why MASBench?
 
-MASBench addresses research questions concerning architectural trade-offs, orchestration overhead, coordination behavior, and scalability characteristics in LLM-based agent systems. The framework standardizes execution environments, evaluation protocols, and measurement methodologies to enable controlled comparison across different agent frameworks. By isolating framework behavior from task complexity and model capabilities, MASBench supports rigorous analysis of system design decisions and their performance implications.
+Existing benchmarks primarily test isolated agent capabilities (reasoning, tool use, memory) without addressing how framework architecture governs performance and scalability. MASBench fills this gap by:
 
-## Architectural Perspective
+- Providing controlled evaluation of architectural design decisions under fixed models and tasks
+- Isolating framework-level effects from model capabilities and task complexity
+- Enabling systematic comparison across orchestration patterns, memory architectures, and coordination mechanisms
+- Supporting reproducible analysis of scalability and resource utilization characteristics
 
-MASBench organizes its evaluation space through a taxonomy of three primary framework paradigms:
+## How MASBench Works
 
-- **Graph-based orchestration**: Frameworks that model agent workflows as directed graphs, where nodes represent computational steps and edges define control flow and data dependencies.
+- **Unified execution pipeline**: Standardized interfaces normalize execution across diverse frameworks
+- **Standardized configuration & logging**: Consistent measurement and artifact collection
+- **Controlled architectural isolation**: Framework behavior evaluated independently of model and task variations
+- **Cost-aware backend routing**: Abstracted LLM backends support efficient, framework-agnostic evaluation
 
-- **Role-based agent systems**: Frameworks that structure agents around specialized roles or personas, with coordination mechanisms that route tasks and information based on role assignments.
+## Architectural Taxonomy
 
-- **Environment- or simulation-mediated systems**: Frameworks that situate agents within shared environments or simulations, where interaction occurs through environment state and action interfaces.
+MASBench organizes frameworks along three primary paradigms:
 
-These categories represent distinct architectural approaches to agent coordination and orchestration. MASBench evaluates frameworks through this lens, examining how each paradigm handles memory management, task routing, error recovery, and scalability.
+- **Graph-based orchestration**: Workflows modeled as directed graphs with nodes representing computational steps and edges defining control flow
+- **Role-based agent systems**: Agents structured around specialized roles with coordination mechanisms routing tasks based on role assignments
+- **Environment/simulation-mediated systems**: Agents situated within shared environments where interaction occurs through state and action interfaces
 
-## Evaluation Methodology Overview
+The suite evaluates key architectural dimensions:
 
-MASBench integrates established benchmarks and evaluation protocols to assess framework behavior. The suite normalizes execution environments, logging mechanisms, and configuration interfaces to ensure consistent measurement across frameworks. Where possible, MASBench isolates framework-specific behavior from model capabilities and task complexity.
+- **Orchestration & control flow**: How frameworks structure task execution and manage dependencies
+- **Memory architecture**: Long-term retention, learning, and forgetting mechanisms
+- **Planning interfaces**: Multi-step reasoning under framework constraints
+- **Specialization mechanisms**: Role assignment, task routing, and capability distribution
+- **Communication topology & coordination**: Information flow patterns, coordination mechanisms, and topology-induced interaction patterns in multi-agent settings
 
-Evaluation proceeds along two dimensions: experimental assessment of capabilities (memory retention, planning accuracy, coordination efficiency) and architectural analysis of system design (orchestration patterns, communication topologies, resource utilization). Tool use is integrated as part of the evaluation infrastructure to support capability assessment, but is not itself subject to experimental evaluation due to model-dominated behavior and interface standardization constraints.
-
-## Experiment Index
+## Benchmark Modules
 
 ### Single-Agent Evaluation
 
-- [Memory](single_agent/memory/readme.md)
-- [Planning](single_agent/reasoning/README.md)
-- [Specialization](single_agent/specialization/readme.md)
-- [Framework Overhead](single_agent/framework_overhead/README.md)
-- [Tool Use](single_agent/tool_use/README.md) (architectural)
+- [Memory](single_agent/memory/readme.md) — Long-term retention, learning, forgetting
+- [Planning](single_agent/reasoning/README.md) — Multi-step reasoning under interface constraints
+- [Specialization](single_agent/specialization/readme.md) — Role assignment and capability distribution
+- [Framework Overhead](single_agent/framework_overhead/README.md) — Orchestration and execution efficiency
+- [Tool Use](single_agent/tool_use/README.md) — Architectural integration patterns
 
 ### Multi-Agent Evaluation
 
-- [Coordination & Topology](multi_agent/topology/README.md)
+- [Coordination & Topology](multi_agent/topology/README.md) — Communication patterns and coordination outcomes
 
-## Results & Artifacts
+## Reproducibility & Artifacts
 
-Experimental results are preserved in `results/` for transparency and reproducibility. The main README does not summarize or interpret findings; analysis and interpretation are documented within individual experiment directories and associated publications.
+MASBench enforces reproducibility through:
 
-## Reproducibility & Execution Scope
+- Fixed Python version (3.12.3) and pinned dependencies (`requirements.lock`)
+- Unified execution pipeline with standardized configuration and logging
+- Backend abstraction supporting cost-aware, framework-agnostic evaluation
+- Experimental results preserved in `results/` for transparency
 
-MASBench enforces reproducibility through fixed Python version requirements (3.12.3), pinned dependency versions (specified in `requirements.lock`), and controlled execution environments. The suite abstracts LLM backends to support cost-aware execution and framework-agnostic evaluation. All experiments are designed to execute from a clean Python environment with minimal external configuration.
+Analysis and interpretation are documented within individual experiment directories and associated publications.
 
 ## Citation
 
+If you use MASBench in academic work, please cite:
+
 ```bibtex
-@article{masbench2026,
-  title={Evaluating Multi-Agent Frameworks: A Taxonomy and Experimental Perspective},
+@article{orogat2026mafbench,
+  title={Understanding Multi-Agent LLM Frameworks: A Unified Benchmark and Experimental Analysis},
   author={Orogat, Abdelghny and Rostam, Ana and Mansour, Essam},
-  journal={To be updated},
-  year={2026},
-  doi={To be updated}
+  journal={arXiv preprint arXiv:submit/7225627},
+  year={2026}
 }
 ```
 
-*To be updated upon publication.*
-
 ## Contact
 
-Abdelghny Orogat  
-Concordia University  
-Abdelghny.Orogat@concordia.ca
+Abdelghny Orogat — Concordia University  
+Email: Abdelghny.Orogat@concordia.ca
