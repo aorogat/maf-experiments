@@ -6,6 +6,8 @@
 
 MASBench is a unified benchmark suite for systematically analyzing architectural design choices in LLM-based agent frameworks — spanning orchestration, memory, planning, specialization, and multi-agent coordination under controlled execution. The suite isolates framework-level effects from model capabilities and task complexity, enabling controlled evaluation of single-agent and multi-agent architectural design choices.
 
+**Resources**: [Website](https://aorogat.github.io/Multi_Agent_Design/) | Paper (coming soon)
+
 ## Why MASBench?
 
 Existing benchmarks primarily test isolated agent capabilities (reasoning, tool use, memory) without addressing how framework architecture governs performance and scalability. MASBench fills this gap by:
