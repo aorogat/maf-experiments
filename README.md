@@ -6,7 +6,7 @@
 
 MAFBench is a unified benchmark suite for systematically analyzing architectural design choices in LLM-based agent frameworks — spanning orchestration, memory, planning, specialization, and multi-agent coordination under controlled execution. The suite isolates framework-level effects from model capabilities and task complexity, enabling controlled evaluation of single-agent and multi-agent architectural design choices.
 
-**Resources**: [Website](https://aorogat.github.io/Multi_Agent_Design/) | Paper (coming soon)
+**Resources**: [Website](https://cods.ai/Multi_Agent_Design/) | [Paper](https://arxiv.org/abs/2602.03128)
 
 ## Why MAFBench?
 
