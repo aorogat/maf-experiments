@@ -70,17 +70,9 @@ Analysis and interpretation are documented within individual experiment director
 If you use MAFBench in academic work, please cite:
 
 ```bibtex
-@article{orogat2026mafbench,
-  title={Understanding Multi-Agent LLM Frameworks: A Unified Benchmark and Experimental Analysis},
-  author={Orogat, Abdelghny and Rostam, Ana and Mansour, Essam},
-  eprint={2602.03128},
-  archivePrefix={arXiv},
-  url={https://arxiv.org/abs/2602.03128}, 
-  year={2026}
-}
+
 ```
 
 ## Contact
 
-Abdelghny Orogat — Concordia University  
-Email: Abdelghny.Orogat@concordia.ca
+
