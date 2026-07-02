@@ -4,20 +4,20 @@
 
 ![MASBench](slogan.png)
 
-MASBench is a unified benchmark suite for systematically analyzing architectural design choices in LLM-based agent frameworks — spanning orchestration, memory, planning, specialization, and multi-agent coordination under controlled execution. The suite isolates framework-level effects from model capabilities and task complexity, enabling controlled evaluation of single-agent and multi-agent architectural design choices.
+MAFBench is a unified benchmark suite for systematically analyzing architectural design choices in LLM-based agent frameworks — spanning orchestration, memory, planning, specialization, and multi-agent coordination under controlled execution. The suite isolates framework-level effects from model capabilities and task complexity, enabling controlled evaluation of single-agent and multi-agent architectural design choices.
 
-**Resources**: [Website](https://aorogat.github.io/Multi_Agent_Design/) | Paper (coming soon)
+**Resources**: [Website](https://cods.ai/Multi_Agent_Design/) | [Paper](https://arxiv.org/abs/2602.03128)
 
-## Why MASBench?
+## Why MAFBench?
 
-Existing benchmarks primarily test isolated agent capabilities (reasoning, tool use, memory) without addressing how framework architecture governs performance and scalability. MASBench fills this gap by:
+Existing benchmarks primarily test isolated agent capabilities (reasoning, tool use, memory) without addressing how framework architecture governs performance and scalability. MAFBench fills this gap by:
 
 - Providing controlled evaluation of architectural design decisions under fixed models and tasks
 - Isolating framework-level effects from model capabilities and task complexity
 - Enabling systematic comparison across orchestration patterns, memory architectures, and coordination mechanisms
 - Supporting reproducible analysis of scalability and resource utilization characteristics
 
-## How MASBench Works
+## How MAFBench Works
 
 - **Unified execution pipeline**: Standardized interfaces normalize execution across diverse frameworks
 - **Standardized configuration & logging**: Consistent measurement and artifact collection
@@ -26,7 +26,7 @@ Existing benchmarks primarily test isolated agent capabilities (reasoning, tool 
 
 ## Architectural Taxonomy
 
-MASBench organizes frameworks along three primary paradigms:
+MAFBench organizes frameworks along three primary paradigms:
 
 - **Graph-based orchestration**: Workflows modeled as directed graphs with nodes representing computational steps and edges defining control flow
 - **Role-based agent systems**: Agents structured around specialized roles with coordination mechanisms routing tasks based on role assignments
@@ -56,7 +56,7 @@ The suite evaluates key architectural dimensions:
 
 ## Reproducibility & Artifacts
 
-MASBench enforces reproducibility through:
+MAFBench enforces reproducibility through:
 
 - Fixed Python version (3.12.3) and pinned dependencies (`requirements.lock`)
 - Unified execution pipeline with standardized configuration and logging
@@ -67,13 +67,15 @@ Analysis and interpretation are documented within individual experiment director
 
 ## Citation
 
-If you use MASBench in academic work, please cite:
+If you use MAFBench in academic work, please cite:
 
 ```bibtex
 @article{orogat2026mafbench,
   title={Understanding Multi-Agent LLM Frameworks: A Unified Benchmark and Experimental Analysis},
   author={Orogat, Abdelghny and Rostam, Ana and Mansour, Essam},
-  journal={arXiv preprint arXiv:submit/7225627},
+  eprint={2602.03128},
+  archivePrefix={arXiv},
+  url={https://arxiv.org/abs/2602.03128}, 
   year={2026}
 }
 ```
