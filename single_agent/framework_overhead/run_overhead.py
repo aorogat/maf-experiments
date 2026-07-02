@@ -21,6 +21,7 @@ from single_agent.framework_overhead.openai_sdk_runner import OpenAISDKRunner
 from single_agent.framework_overhead.agno_runner import AgnoRunner
 from single_agent.framework_overhead.autogen_runner import AutoGenRunner
 from single_agent.framework_overhead.gabm_skeleton_runner import GABMSkeletonRunner
+from single_agent.framework_overhead.openhands_runner import OpenHandsRunner
 from single_agent.framework_overhead.instrumentation import (
     install_patches,
     measure,
@@ -215,6 +216,7 @@ def main():
         "Agno": AgnoRunner(model=MODEL_NO_Prefix),
         "GABM Skeleton": GABMSkeletonRunner(model=MODEL),
         "Concordia": ConcordiaRunner(model=MODEL),  # each .run() will rebuild simulation
+        "OpenHands": OpenHandsRunner(model=MODEL),
     }
 
     all_results = []

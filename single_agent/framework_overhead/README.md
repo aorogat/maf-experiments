@@ -87,5 +87,5 @@ Concordia:  p50=34334 ms | LLM calls=3.0 | tokens=3145/57 | residual=...
 
 - This experiment isolates framework **overhead only**; all advanced features are disabled.
 - Default: 50 trials, concurrency=4.
-- OpenHands is tracked as a separate task (not in this harness).
+- **OpenHands** runs via `openhands_runner.py` with tools disabled (`tools=[]`, `include_default_tools=[]`, `cli_mode=True`). Expect higher prompt-token overhead from the OpenHands system prompt; token capture uses the shared API-boundary instrumentation (litellm → OpenAI path).
 - `openai-agents` is pinned to `0.0.19` for compatibility with `openai==1.102.0`.
