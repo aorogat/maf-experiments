@@ -1,24 +1,24 @@
 """
 AutoGen baseline runner for framework overhead experiments.
 
-This runner:
-- Uses AutoGen (AssistantAgent)
-- Uses NO memory / NO tools / NO multi-agent coordination
-- Executes a single dummy question
-- Measures framework + orchestration overhead only
+Uses autogen-agentchat 0.7.5 (AssistantAgent + OpenAIChatCompletionClient).
+No memory, no tools, no multi-agent coordination — single trivial query only.
 
 Usage:
     python -m single_agent.framework_overhead.autogen_runner \
         --model gpt-4o-mini
 """
 
+import asyncio
 import time
 import os
 import argparse
+
 from dotenv import load_dotenv
 
-from autogen import AssistantAgent
-
+from autogen_agentchat.agents import AssistantAgent
+from autogen_agentchat.messages import TextMessage
+from autogen_ext.models.openai import OpenAIChatCompletionClient
 
 QUESTION = "What is 2+2?"
 
@@ -26,43 +26,48 @@ QUESTION = "What is 2+2?"
 class AutoGenRunner:
     """Minimal AutoGen runner (no memory, no tools, single agent)."""
 
-    def __init__(self, model="gpt-4o-mini"):
+    def __init__(self, model: str = "gpt-4o-mini"):
         load_dotenv()
 
         if not os.getenv("OPENAI_API_KEY"):
             raise ValueError("OPENAI_API_KEY not set")
 
+        if model.startswith("openai/"):
+            model = model.split("openai/", 1)[1]
         self.model = model
 
-        # Minimal AutoGen agent: no tools, no function calls, no memory
-        self.agent = AssistantAgent(
-            name="OverheadAgent",
-            system_message="Answer the question briefly and correctly.",
-            llm_config={
-                "model": self.model,
-                "api_key": os.getenv("OPENAI_API_KEY"),
-            },
+        self._model_client = OpenAIChatCompletionClient(
+            model=self.model,
+            temperature=0,
+            max_tokens=16,
         )
 
-    def run(self, question: str = QUESTION):
+    def run(self, question: str = QUESTION) -> tuple[str, float]:
         """Run a single AutoGen call and measure latency."""
         start = time.perf_counter()
-
-        # AutoGen returns the full message history; last assistant message is the answer
-        self.agent.reset()
-        self.agent.initiate_chat(
-            recipient=self.agent,
-            message=question,
-            max_turns=1,
-        )
-
+        result = asyncio.run(self._run_once(question))
         end = time.perf_counter()
 
-        # Extract answer safely
-        messages = self.agent.chat_messages[self.agent]
-        answer = messages[-1]["content"] if messages else ""
-
+        answer = self._extract_answer(result)
         return answer.strip(), (end - start) * 1000
+
+    async def _run_once(self, question: str):
+        agent = AssistantAgent(
+            name="OverheadAgent",
+            model_client=self._model_client,
+            system_message="Answer the question briefly and correctly.",
+        )
+        return await agent.run(task=question)
+
+    @staticmethod
+    def _extract_answer(result) -> str:
+        for message in reversed(result.messages):
+            if isinstance(message, TextMessage) and message.source == "assistant":
+                return message.content or ""
+        if result.messages:
+            content = getattr(result.messages[-1], "content", "")
+            return str(content) if content is not None else ""
+        return ""
 
 
 if __name__ == "__main__":

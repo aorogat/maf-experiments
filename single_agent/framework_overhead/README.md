@@ -14,6 +14,7 @@ single_agent/framework_overhead/
 ├── crewai_runner.py     # CrewAI runner (1 agent, 1 task, no planning/memory)
 ├── langgraph_runner.py  # LangGraph runner (single-node graph)
 ├── concordia_runner.py  # Concordia runner (pass-through Game Master)
+├── gabm_skeleton_runner.py  # Minimal GABM skeleton (env-mediated, 1 agent / 1 round)
 └── run_overhead.py      # Master script: runs all frameworks & saves results
 ```
 

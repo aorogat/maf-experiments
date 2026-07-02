@@ -45,7 +45,7 @@ conda-anaconda-tos @ file:///croot/conda-anaconda-tos_1755123313635/work
 conda-content-trust @ file:///work/perseverance-python-buildout/croot/conda-content-trust_1728487058234/work
 conda-libmamba-solver @ file:///croot/conda-libmamba-solver_1745607008911/work/src
 conda-package-handling @ file:///croot/conda-package-handling_1731369017509/work
-conda-package-streaming @ file:///croot/conda-package-streaming_1751307506088/work
+conda_package_streaming @ file:///croot/conda-package-streaming_1751307506088/work
 contourpy==1.3.3
 crewai==0.175.0
 crewai-tools==1.7.2
@@ -55,17 +55,17 @@ dataclasses-json==0.6.7
 datasets==4.0.0
 decorator==5.2.1
 defusedxml==0.7.1
-deprecated==1.3.1
+Deprecated==1.3.1
 deprecation==2.1.0
 dill==0.3.8
 diskcache==5.6.3
 distlib==0.4.0
 distro @ file:///work/perseverance-python-buildout/croot/distro_1728396110052/work
 docker==7.1.0
-docstring-parser==0.17.0
+docstring_parser==0.17.0
 durationpy==0.10
-et-xmlfile==2.0.0
-eval-type-backport==0.2.2
+et_xmlfile==2.0.0
+eval_type_backport==0.2.2
 executing==2.2.0
 fastapi==0.128.0
 fastjsonschema==2.21.2
@@ -77,7 +77,7 @@ frozenlist==1.7.0
 fsspec==2025.3.0
 gdm-concordia==2.1.0
 gitdb==4.0.12
-gitpython==3.1.46
+GitPython==3.1.46
 google-ai-generativelanguage==0.6.15
 google-api-core==2.25.1
 google-api-python-client==2.179.0
@@ -114,31 +114,31 @@ humanfriendly==10.0
 hyperframe==6.1.0
 identify==2.6.15
 idna==3.10
-importlib-metadata==8.7.0
-importlib-resources==6.5.2
+importlib_metadata==8.7.0
+importlib_resources==6.5.2
 iniconfig==2.1.0
 instructor==1.11.2
 invoke==2.2.0
 ipython==9.5.0
-ipython-pygments-lexers==1.1.1
+ipython_pygments_lexers==1.1.1
 itsdangerous==2.2.0
-jaraco-classes @ file:///croot/jaraco.classes_1755516327832/work
-jaraco-context @ file:///io/perseverance-python-buildout/croot/jaraco.context_1731706750665/work
-jaraco-functools @ file:///croot/jaraco.functools_1740408111753/work
+jaraco.classes @ file:///croot/jaraco.classes_1755516327832/work
+jaraco.context @ file:///io/perseverance-python-buildout/croot/jaraco.context_1731706750665/work
+jaraco.functools @ file:///croot/jaraco.functools_1740408111753/work
 jedi==0.19.2
 jeepney @ file:///tmp/build/80754af9/jeepney_1627537048313/work
-jinja2==3.1.6
+Jinja2==3.1.6
 jiter==0.10.0
 jmespath==1.0.1
-json-repair==0.25.2
 json5==0.12.1
+json_repair==0.25.2
 jsonpatch @ file:///work/perseverance-python-buildout/croot/jsonpatch_1728399595941/work
 jsonpickle==4.1.1
 jsonpointer @ file:///croot/jsonpointer_1753788433671/work
 jsonref==1.1.0
 jsonschema==4.25.1
 jsonschema-specifications==2025.4.1
-jupyter-core==5.8.1
+jupyter_core==5.8.1
 kaleido==1.1.0
 keyring @ file:///croot/keyring_1745484691218/work
 kiwisolver==1.4.9
@@ -162,7 +162,7 @@ litellm==1.74.9
 logistro==1.1.0
 lxml==6.0.2
 markdown-it-py==4.0.0
-markupsafe==3.0.2
+MarkupSafe==3.0.2
 marshmallow==3.26.1
 matplotlib==3.10.5
 matplotlib-inline==0.1.7
@@ -175,7 +175,7 @@ more-itertools @ file:///work/perseverance-python-buildout/croot/more-itertools_
 mpmath==1.3.0
 multidict==6.6.4
 multiprocess==0.70.16
-mypy-extensions==1.1.0
+mypy_extensions==1.1.0
 narwhals==2.5.0
 nbformat==5.10.4
 networkx==3.5
@@ -212,47 +212,45 @@ overrides==7.7.0
 packaging @ file:///croot/packaging_1753775359799/work
 pandas==2.3.2
 parso==0.8.5
-pdfminer-six==20250506
+pdfminer.six==20250506
 pdfplumber==0.11.7
 pexpect==4.9.0
 pillow==11.3.0
-pip==26.0.1
 pkce @ file:///work/perseverance-python-buildout/croot/pkce_1728388093137/work
 platformdirs==4.4.0
 plotly==6.3.0
 pluggy==1.6.0
 portalocker==2.7.0
 posthog==5.4.0
-pre-commit==4.5.1
-prometheus-client==0.23.1
-prompt-toolkit==3.0.52
+pre_commit==4.5.1
+prometheus_client==0.23.1
+prompt_toolkit==3.0.52
 propcache==0.3.2
 proto-plus==1.26.1
 protobuf==5.29.5
 ptyprocess==0.7.0
-pure-eval==0.2.3
+pure_eval==0.2.3
 py==1.11.0
 pyarrow==21.0.0
 pyasn1==0.6.1
-pyasn1-modules==0.4.2
-pyautogen==0.10.0
+pyasn1_modules==0.4.2
 pybase64==1.4.2
 pycosat @ file:///croot/pycosat_1736868416091/work
 pycparser==2.22
 pydantic==2.11.7
-pydantic-core==2.33.2
 pydantic-settings==2.10.1
+pydantic_core==2.33.2
 pydeck==0.9.2
-pygments==2.19.2
-pyjwt==2.10.1
+Pygments==2.19.2
+PyJWT==2.10.1
 pylance==0.9.18
-pymupdf==1.26.7
-pynacl==1.6.1
+PyMuPDF==1.26.7
+PyNaCl==1.6.1
 pyparsing==3.2.3
 pypdfium2==4.30.0
-pypika==0.48.9
-pyproject-hooks==1.2.0
-pysocks @ file:///work/perseverance-python-buildout/croot/pysocks_1728386193338/work
+PyPika==0.48.9
+pyproject_hooks==1.2.0
+PySocks @ file:///work/perseverance-python-buildout/croot/pysocks_1728386193338/work
 pytesseract==0.3.13
 pytest==8.4.2
 pytest-timeout==2.4.0
@@ -263,7 +261,7 @@ python-multipart==0.0.21
 pytube==15.0.0
 pytz==2025.2
 pyvis==0.3.2
-pyyaml==6.0.2
+PyYAML==6.0.2
 ratelimiter==1.2.0.post0
 rdflib==7.3.0
 reactivex==4.0.4
@@ -278,13 +276,13 @@ retry==0.9.2
 rich==14.1.0
 rpds-py==0.27.1
 rsa==4.9.1
-ruamel-yaml @ file:///croot/ruamel.yaml_1745960305322/work
-ruamel-yaml-clib @ file:///croot/ruamel.yaml.clib_1745937152469/work
+ruamel.yaml @ file:///croot/ruamel.yaml_1745960305322/work
+ruamel.yaml.clib @ file:///croot/ruamel.yaml.clib_1745937152469/work
 s3transfer==0.13.1
 safetensors==0.6.2
 scipy==1.16.1
 seaborn==0.13.2
-secretstorage @ file:///work/perseverance-python-buildout/croot/secretstorage_1728387678881/work
+SecretStorage @ file:///work/perseverance-python-buildout/croot/secretstorage_1728387678881/work
 semver @ file:///croot/semver_1736540782504/work
 setuptools==78.1.1
 shapely==2.1.1
@@ -295,9 +293,9 @@ slowapi==0.1.9
 smmap==5.0.2
 sniffio==1.3.1
 soupsieve==2.8.1
-sparqlwrapper==2.0.0
--e file:///shared_mnt/MAS_Task_Generation
-sqlalchemy==2.0.43
+SPARQLWrapper==2.0.0
+-e git+https://github.com/CoDS-GCS/MAS_Task_Generation.git@4ee9644fa2a1a6f8fa0d6c8422768c475b6d631a#egg=spec2mas
+SQLAlchemy==2.0.43
 sse-starlette==3.0.4
 stack-data==0.6.3
 starlette==0.50.0
@@ -312,7 +310,7 @@ together==1.5.25
 tokenizers==0.21.4
 toml==0.10.2
 tomli==2.2.1
-tomli-w==1.2.0
+tomli_w==1.2.0
 tqdm @ file:///croot/tqdm_1738943501192/work
 traitlets==5.14.3
 transformers==4.55.4
@@ -320,13 +318,13 @@ triton==3.5.0
 truststore @ file:///croot/truststore_1753907171582/work
 typer==0.15.4
 types-requests==2.32.4.20250913
-typing-extensions==4.15.0
 typing-inspect==0.9.0
 typing-inspection==0.4.1
+typing_extensions==4.15.0
 tzdata==2025.2
 uritemplate==4.2.0
 urllib3==2.5.0
-uuid-utils==0.12.0
+uuid_utils==0.12.0
 uv==0.8.14
 uvicorn==0.35.0
 uvloop==0.21.0
