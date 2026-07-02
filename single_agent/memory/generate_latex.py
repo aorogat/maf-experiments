@@ -1,7 +1,16 @@
 import os
+import sys
 import json
 from glob import glob
+from pathlib import Path
 from collections import defaultdict
+
+# Allow `python single_agent/memory/generate_latex.py` (cwd arbitrary): repo root must be on path.
+_REPO_ROOT = Path(__file__).resolve().parents[2]
+if str(_REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(_REPO_ROOT))
+
+from single_agent.memory.helpers.common_agent_utils import results_label
 
 # 1. Subtasks per category
 CATEGORY_SUBTASKS = {
@@ -24,13 +33,16 @@ def parse_result_file(file_path):
     print(f"🧾 Parsing: {file_path}")
 
     system = data.get("system", "Unknown System")
+    agent_model = data.get("agent_model")
+    # Distinct table row per (framework, agent LLM); legacy JSONs omit agent_model.
+    row_key = results_label(system, agent_model)
+
     results = data.get("results_so_far") or data.get("results") or []
 
     subtasks_scores = defaultdict(list)
     for r in results:
         subtask = r.get("subtask")
         score = r.get("score")
-        subtask = r.get("subtask")
 
         if subtask not in SUBTASK_TO_CATEGORY or score is None:
             continue
@@ -44,7 +56,7 @@ def parse_result_file(file_path):
     if not avg_scores:
         print(f"⚠️ No valid scores found in: {file_path}")
 
-    return system, avg_scores
+    return row_key, avg_scores
 
 
 def format_score(score):
@@ -61,9 +73,9 @@ def generate_latex_table(results_dir):
     systems = defaultdict(dict)
 
     for file_path in json_files:
-        system, subtask_scores = parse_result_file(file_path)
+        row_key, subtask_scores = parse_result_file(file_path)
         for subtask, score in subtask_scores.items():
-            systems[system][subtask] = score
+            systems[row_key][subtask] = score
 
     # Compute category averages + overall
     for system, score_map in systems.items():
@@ -81,7 +93,7 @@ def generate_latex_table(results_dir):
 \begin{table*}[t]
 \centering
 \caption{Evaluation of memory competencies on MemoryAgentBench.
-For each agent framework, scores are first computed per session, then averaged across all sessions belonging to the same subtask.
+For each agent framework (and backbone LLM when recorded in \texttt{agent\_model}), scores are first computed per session, then averaged across all sessions belonging to the same subtask.
 For OpenAI SDK variants, $C$ denotes the maximum short-term context window (in tokens) retained during accumulation-based memory.
 Category-level scores (AR, TTL, LRU, SF) are obtained by averaging the corresponding subtask scores within each category.
 The Overall score is computed as the mean of the category-level averages.

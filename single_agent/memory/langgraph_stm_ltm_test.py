@@ -41,6 +41,7 @@ from single_agent.memory.helpers.common_agent_utils import (
 )
 from single_agent.memory.config import (
     langgraph_llm_model,
+    langgraph_llm_model_provider,
     storage_directory,
     chunk_max_tokens,
     RETRIEVAL_LIMIT,
@@ -107,6 +108,7 @@ def build_langgraph_agent():
 
     model = init_chat_model(
         model=langgraph_llm_model,
+        model_provider=langgraph_llm_model_provider,
         streaming=False,
     )
 
@@ -252,6 +254,7 @@ def main():
                 agent,
                 system_name=f"LangGraph_STM_LTM_CTX{LANGGRAPH_SHORT_TERM_CONTEXT_TOKENS}",
                 verbose=verbose,
+                agent_model=langgraph_llm_model,
             )
 
             overall_summary[split] = result["overall"]
@@ -259,6 +262,7 @@ def main():
         summarize_results(
             f"LangGraph_STM_LTM_CTX{LANGGRAPH_SHORT_TERM_CONTEXT_TOKENS}",
             overall_summary,
+            agent_model=langgraph_llm_model,
         )
 
     finally:

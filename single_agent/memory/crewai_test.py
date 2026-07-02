@@ -186,10 +186,11 @@ def main():
                 agent,
                 system_name= "Crewai",
                 verbose=verbose,
+                agent_model=crewai_llm_model,
             )
             overall_summary[split] = result["overall"]
 
-        summarize_results("Crewai", overall_summary)
+        summarize_results("Crewai", overall_summary, agent_model=crewai_llm_model)
 
     finally:
         # -----------------------------------------------------------------

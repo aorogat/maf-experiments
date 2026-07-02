@@ -2,7 +2,7 @@
 \begin{table*}[t]
 \centering
 \caption{Evaluation of memory competencies on MemoryAgentBench.
-For each agent framework, scores are first computed per session, then averaged across all sessions belonging to the same subtask.
+For each agent framework (and backbone LLM when recorded in \texttt{agent\_model}), scores are first computed per session, then averaged across all sessions belonging to the same subtask.
 For OpenAI SDK variants, $C$ denotes the maximum short-term context window (in tokens) retained during accumulation-based memory.
 Category-level scores (AR, TTL, LRU, SF) are obtained by averaging the corresponding subtask scores within each category.
 The Overall score is computed as the mean of the category-level averages.
@@ -40,6 +40,7 @@ LangGraph STM LTM CTX4096 & 33.0 & 34.0 & 36.7 & 60.4 & 41.0 & 32.2 & 14.6 & 23.
 LangGraph STM LTM CTX50 & 35.0 & 35.0 & 41.7 & 3.7 & 28.8 & 38.6 & 3.9 & 21.3 & 0.0 & 1.4 & 0.7 & 0.2 & 0.2 & 0.2 & 12.8 \\
 LangGraph STM LTM CTX512 & 36.0 & 34.0 & 44.0 & 65.6 & 44.9 & 35.6 & 12.8 & 24.2 & 0.0 & 35.2 & 17.6 & 0.0 & 0.0 & 0.0 & 21.7 \\
 LangGraph STM LTM CTX8192 & 31.0 & 35.0 & 41.7 & 59.6 & 41.8 & 32.8 & 18.7 & 25.7 & 10.0 & 40.8 & 25.4 & 0.0 & 0.2 & 0.1 & 23.3 \\
+LangGraph claude-haiku-4-5-20251001 & 9.0 & 8.0 & 35.3 & 82.5 & 33.7 & 0.8 & 51.6 & 26.2 & 40.0 & 53.5 & 46.8 & 29.0 & 4.0 & 16.5 & 30.8 \\
 Openai SDK Groq CTX1024 & 40.0 & 33.0 & 7.7 & 48.5 & 32.3 & 3.6 & 22.1 & 12.8 & 0.0 & 25.4 & 12.7 & 0.0 & 0.0 & 0.0 & 14.5 \\
 Openai SDK Groq CTX2048 & 32.0 & 32.0 & 18.3 & 49.9 & 33.1 & 10.0 & 20.9 & 15.5 & 0.0 & 33.8 & 16.9 & 0.2 & 0.0 & 0.1 & 16.4 \\
 Openai SDK Groq CTX4096 & 36.0 & 35.0 & 14.0 & 48.5 & 33.4 & 16.2 & 22.7 & 19.4 & 0.0 & 29.6 & 14.8 & 0.5 & 0.0 & 0.2 & 17.0 \\

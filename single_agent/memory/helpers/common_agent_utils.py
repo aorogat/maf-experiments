@@ -1,5 +1,6 @@
 import os
 import json
+import re
 import time
 import tiktoken
 
@@ -54,12 +55,36 @@ def chunk_text(text, max_tokens=4096, overlap=200, model_name="gpt-4o-mini"):
 
 
 # ------------------------------------------------------------------
+# 📊 Result filenames (agent LLM differentiation)
+# ------------------------------------------------------------------
+def model_tag_for_results(model_id: str) -> str:
+    """
+    Map an LLM id to a short, filesystem-safe token for result paths/filenames.
+    """
+    if not model_id:
+        return ""
+    s = model_id.strip()
+    s = re.sub(r"[^0-9a-zA-Z._-]+", "_", s)
+    s = re.sub(r"_+", "_", s).strip("_")
+    return s[:120]
+
+
+def results_label(system_name: str, agent_model: str | None) -> str:
+    """Combine framework label with optional agent model tag."""
+    tag = model_tag_for_results(agent_model) if agent_model else ""
+    if not tag:
+        return system_name
+    return f"{system_name}_{tag}"
+
+
+# ------------------------------------------------------------------
 # 📊 Benchmark Reporting
 # ------------------------------------------------------------------
-def summarize_results(system_name, overall_summary):
+def summarize_results(system_name, overall_summary, agent_model=None):
     """Pretty-print and save benchmark summary to results/memory/."""
+    label = results_label(system_name, agent_model)
     print("\n" + "=" * 80)
-    print(f"📊 FINAL SUMMARY – {system_name}")
+    print(f"📊 FINAL SUMMARY – {label}")
     print("=" * 80)
 
     for split, score in overall_summary.items():
@@ -74,7 +99,7 @@ def summarize_results(system_name, overall_summary):
     timestamp = time.strftime("%Y%m%d_%H%M%S")
     results_dir = os.path.join("results", "memory")
     os.makedirs(results_dir, exist_ok=True)
-    summary_path = os.path.join(results_dir, f"{system_name}_summary_{timestamp}.json")
+    summary_path = os.path.join(results_dir, f"{label}_summary_{timestamp}.json")
 
     with open(summary_path, "w") as f:
         json.dump(overall_summary, f, indent=2)

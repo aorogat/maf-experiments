@@ -13,7 +13,9 @@ Keep all shared parameters here for easy reuse across scripts.
 openai_sdk_llm_model = "openai/gpt-4o-mini"
 agno_llm_model = "gpt-4o-mini"
 crewai_llm_model = "gpt-4o-mini"
-langgraph_llm_model = "gpt-4o-mini"
+# LangGraph agent only (ingest/query path); embeddings stay OpenAI; eval_llm_model is separate below.
+langgraph_llm_model = "claude-haiku-4-5-20251001"
+langgraph_llm_model_provider = "anthropic"
 autogen_llm_model = "gpt-4o-mini"
 
 llm_max_tokens = 1500

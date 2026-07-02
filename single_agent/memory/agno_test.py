@@ -157,10 +157,11 @@ def main():
                 agent,
                 system_name= "Agno",
                 verbose=verbose,
+                agent_model=agno_llm_model,
             )
             overall_summary[split] = result["overall"]
 
-        summarize_results("Agno", overall_summary)
+        summarize_results("Agno", overall_summary, agent_model=agno_llm_model)
 
     finally:
         # -----------------------------------------------------------------

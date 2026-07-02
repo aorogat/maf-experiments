@@ -11,7 +11,8 @@ This file is designed to be imported and used by external systems
     from benchmarks.memory.memory_agent_bench import MemoryAgentBench
 
 Each benchmark split is evaluated on an agent, and results are saved as JSON
-in `results/memory/<system_name>_<split>_<timestamp>.json`.
+in `results/memory/<system_name>[_<agent_model_tag>]_<split>_<timestamp>.json`
+when `agent_model` is passed to `evaluate_agent`.
 
 Metrics per category:
   - Accurate Retrieval (AR): Accuracy (semantic match per question)
@@ -41,6 +42,7 @@ from single_agent.memory.config import (
     max_questions_per_session,
     ignore_ingest,
 )
+from single_agent.memory.helpers.common_agent_utils import results_label
 
 # ---------------------------------------------------------------------
 # 🔹 Subtask → Category Mapping
@@ -176,11 +178,15 @@ class MemoryAgentBench:
         print("Detected subtasks:", subtasks)
 
     # --------------------------------------------------------------
-    def evaluate_agent(self, agent, system_name="unknown_system", verbose=False):
+    def evaluate_agent(self, agent, system_name="unknown_system", verbose=False, agent_model=None):
         """
         Runs the agent and computes metrics per-question using GPT-based functions.
         Uses max_sessions_per_subtask from config.
+
+        agent_model: optional LLM id used for ingest/query; appended to saved paths
+        to separate runs by backbone model (eval/judge unchanged).
         """
+        results_key = results_label(system_name, agent_model)
 
         category_scores = defaultdict(list)
         detailed_results = []
@@ -289,6 +295,7 @@ class MemoryAgentBench:
             for q, pair, score in zip(sess["questions"], answers_pairs, correctness):
                 detailed_results.append({
                     "system": system_name,
+                    "agent_model": agent_model,
                     "split": self.split,
                     "session_id": sess["qid"],
                     "category": cat,
@@ -302,7 +309,9 @@ class MemoryAgentBench:
 
             # Save individual session file
             session_file_path = self._save_session_result(
-                system_name=system_name,
+                storage_key=results_key,
+                logical_system=system_name,
+                agent_model=agent_model,
                 sess=sess,
                 correctness=[
                     {"system": pair["system"], "gold": pair["gold"], "score": s}
@@ -329,12 +338,13 @@ class MemoryAgentBench:
         timestamp = time.strftime("%Y%m%d_%H%M%S")
         save_path = os.path.join(
             self.results_dir,
-            f"{system_name}_{self.split}_{timestamp}.json"
+            f"{results_key}_{self.split}_{timestamp}.json"
         )
 
         with open(save_path, "w") as f:
             json.dump({
                 "system": system_name,
+                "agent_model": agent_model,
                 "split": self.split,
                 "category_avg": category_avg,
                 "overall": overall,
@@ -352,6 +362,7 @@ class MemoryAgentBench:
 
         return {
             "system": system_name,
+            "agent_model": agent_model,
             "category_avg": category_avg,
             "overall": overall,
             "total_runtime_sec": round(total_time, 2),
@@ -360,15 +371,15 @@ class MemoryAgentBench:
 
 
 
-    def _save_session_result(self, system_name, sess, correctness, duration):
+    def _save_session_result(self, storage_key, sess, correctness, duration, logical_system=None, agent_model=None):
         """
         Saves an individual session result inside:
-        results/memory/<system_name>/<subtask>/session_<id>.json
+        results/memory/<storage_key>/<subtask>/session_<id>.json
         """
 
         subfolder = os.path.join(
             self.results_dir,
-            system_name,
+            storage_key,
             sess["subtask"]
         )
         os.makedirs(subfolder, exist_ok=True)
@@ -391,7 +402,8 @@ class MemoryAgentBench:
             })
 
         data = {
-            "system": system_name,
+            "system": logical_system or storage_key,
+            "agent_model": agent_model,
             "split": self.split,
             "session_id": sess["qid"],
             "subtask": sess["subtask"],

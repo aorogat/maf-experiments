@@ -269,11 +269,12 @@ def main():
             agent,
             system_name="AutoGen-ChromaDB-OpenAI_k_" + str(k),
             verbose=verbose,
+            agent_model=OPENAI_MODEL,
         )
 
         overall_summary[split] = result["overall"]
 
-    summarize_results("AutoGen-ChromaDB-OpenAI", overall_summary)
+    summarize_results("AutoGen-ChromaDB-OpenAI", overall_summary, agent_model=OPENAI_MODEL)
 
 
 # ---------------------------------------------------------------------

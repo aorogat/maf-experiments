@@ -20,6 +20,7 @@ from single_agent.framework_overhead.openAgents_runner import OpenAgentsRunner
 from single_agent.framework_overhead.openai_sdk_runner import OpenAISDKRunner
 from single_agent.framework_overhead.agno_runner import AgnoRunner
 from single_agent.framework_overhead.autogen_runner import AutoGenRunner
+from frameworks.gabm_skeleton.runner import GABMSkeletonRunner
 
 
 

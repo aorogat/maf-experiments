@@ -20,6 +20,9 @@ OPENAI_SDK_INGEST_MAX_TOKENS = 4096
 # Experimental variable (sweep this)
 OPENAI_SDK_CONTEXT_WINDOW_TOKENS = 16384   # 50 / 512 / 1024 / 2048 / 4096 / 8192 / 16384 / 32768 [big context window hit the TPM]
 
+# Agent backbone (ingest + query); used in result filenames
+OPENAI_SDK_AGENT_MODEL = "litellm/groq/openai/gpt-oss-20b"
+
 
 
 import os
@@ -179,7 +182,7 @@ def build_ingest_agent():
     return Agent(
         name="MemoryIngest",
         instructions="Store information exactly as provided.",
-        model="litellm/groq/openai/gpt-oss-20b",
+        model=OPENAI_SDK_AGENT_MODEL,
         model_settings=ModelSettings(
             max_output_tokens=1,
             temperature=0.0,
@@ -200,7 +203,7 @@ def build_query_agent():
             "You are a helpful assistant that answers questions accurately "
             "using remembered context."
         ),
-        model="litellm/groq/openai/gpt-oss-20b",
+        model=OPENAI_SDK_AGENT_MODEL,
         model_settings=ModelSettings(
             max_output_tokens=llm_max_tokens,
             temperature=llm_temperature,
@@ -342,10 +345,11 @@ def main():
                 agent,
                 system_name=f"Openai_SDK_Groq_CTX{OPENAI_SDK_CONTEXT_WINDOW_TOKENS}",
                 verbose=verbose,
+                agent_model=OPENAI_SDK_AGENT_MODEL,
             )
             overall_summary[split] = result["overall"]
 
-        summarize_results("Openai_SDK_Groq", overall_summary)
+        summarize_results("Openai_SDK_Groq", overall_summary, agent_model=OPENAI_SDK_AGENT_MODEL)
 
     finally:
         try:

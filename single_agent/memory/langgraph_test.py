@@ -27,6 +27,7 @@ from single_agent.memory.helpers.common_agent_utils import (
 )
 from single_agent.memory.config import (
     langgraph_llm_model,
+    langgraph_llm_model_provider,
     storage_directory,
     chunk_max_tokens,
     RETRIEVAL_LIMIT,
@@ -59,8 +60,12 @@ def build_langgraph_agent(store_path: str):
         index={"embed": embeddings, "dims": 1536}
     )
 
-    # Disable streaming entirely
-    model = init_chat_model(model=langgraph_llm_model, streaming=False)
+    # Disable streaming entirely (agent LLM only; judge is eval_llm_model in config)
+    model = init_chat_model(
+        model=langgraph_llm_model,
+        model_provider=langgraph_llm_model_provider,
+        streaming=False,
+    )
 
     def chat(state: MessagesState, *, store: BaseStore):
         """Retrieve relevant stored facts and generate a response."""
@@ -217,10 +222,11 @@ def main():
                 agent,
                 system_name="LangGraph",
                 verbose=verbose,
+                agent_model=langgraph_llm_model,
             )
             overall_summary[split] = result["overall"]
 
-        summarize_results("LangGraph", overall_summary)
+        summarize_results("LangGraph", overall_summary, agent_model=langgraph_llm_model)
 
     finally:
         try:

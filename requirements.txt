@@ -101,6 +101,7 @@ langchain-community==0.3.29
 langchain-core==0.3.75
 langchain-ollama==0.3.7
 langchain-openai==0.3.32
+langchain-anthropic>=0.3.0
 langchain-text-splitters==0.3.10
 langgraph==0.6.6
 langgraph-checkpoint==2.1.1
