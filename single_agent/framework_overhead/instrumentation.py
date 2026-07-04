@@ -29,6 +29,11 @@ class _Accumulator:
     llm_time_s: float = 0.0
     active_calls: int = 0
     max_concurrency: int = 0
+    # Nesting depth of patched boundaries currently on the stack (per thread).
+    # A single logical request that flows through litellm -> OpenAI SDK enters
+    # two patched layers; we only count/time/record the OUTERMOST one so that
+    # litellm-backed frameworks (CrewAI, OpenHands) are not double-counted.
+    _depth: int = 0
     _span_start: float | None = None
     _span_end: float | None = None
 
@@ -45,6 +50,7 @@ class _Accumulator:
         self.llm_time_s = 0.0
         self.active_calls = 0
         self.max_concurrency = 0
+        self._depth = 0
         self._span_start = None
         self._span_end = None
 
@@ -98,20 +104,31 @@ def _record_call(acc: _Accumulator, result: Any, elapsed_s: float) -> None:
     acc.output_tokens += out_tok
 
 
-def _enter_call(acc: _Accumulator) -> float:
-    acc.active_calls += 1
-    acc.max_concurrency = max(acc.max_concurrency, acc.active_calls)
+def _enter_call(acc: _Accumulator) -> tuple[float, bool]:
+    """Enter a patched boundary. Returns (start_time, is_outermost).
+
+    Only the outermost patched call per thread represents a distinct logical
+    LLM request; nested calls (e.g. the OpenAI SDK call litellm makes
+    internally) are transparent and must not be counted again.
+    """
+    acc._depth += 1
+    is_outer = acc._depth == 1
     t0 = time.perf_counter()
-    if acc._span_start is None:
-        acc._span_start = t0
-    return t0
+    if is_outer:
+        acc.active_calls += 1
+        acc.max_concurrency = max(acc.max_concurrency, acc.active_calls)
+        if acc._span_start is None:
+            acc._span_start = t0
+    return t0, is_outer
 
 
-def _leave_call(acc: _Accumulator, t0: float) -> float:
+def _leave_call(acc: _Accumulator, t0: float, is_outer: bool) -> float:
     t1 = time.perf_counter()
-    if acc._span_end is None or t1 > acc._span_end:
-        acc._span_end = t1
-    acc.active_calls = max(0, acc.active_calls - 1)
+    if is_outer:
+        if acc._span_end is None or t1 > acc._span_end:
+            acc._span_end = t1
+        acc.active_calls = max(0, acc.active_calls - 1)
+    acc._depth = max(0, acc._depth - 1)
     return t1 - t0
 
 
@@ -125,14 +142,15 @@ def _wrap_callable(fn: Callable) -> Callable:
         @functools.wraps(fn)
         async def async_fn_wrapper(*args: Any, **kwargs: Any) -> Any:
             acc = _get_acc()
-            t0 = _enter_call(acc)
+            t0, is_outer = _enter_call(acc)
             try:
                 result = await fn(*args, **kwargs)
             except Exception:
-                _leave_call(acc, t0)
+                _leave_call(acc, t0, is_outer)
                 raise
-            elapsed = _leave_call(acc, t0)
-            _record_call(acc, result, elapsed)
+            elapsed = _leave_call(acc, t0, is_outer)
+            if is_outer:
+                _record_call(acc, result, elapsed)
             return result
 
         setattr(async_fn_wrapper, _SENTINEL, True)
@@ -141,11 +159,11 @@ def _wrap_callable(fn: Callable) -> Callable:
     @functools.wraps(fn)
     def universal_wrapper(*args: Any, **kwargs: Any) -> Any:
         acc = _get_acc()
-        t0 = _enter_call(acc)
+        t0, is_outer = _enter_call(acc)
         try:
             raw = fn(*args, **kwargs)
         except Exception:
-            _leave_call(acc, t0)
+            _leave_call(acc, t0, is_outer)
             raise
 
         if inspect.isawaitable(raw):
@@ -154,16 +172,18 @@ def _wrap_callable(fn: Callable) -> Callable:
                 try:
                     result = await raw
                 except Exception:
-                    _leave_call(acc, t0)
+                    _leave_call(acc, t0, is_outer)
                     raise
-                elapsed = _leave_call(acc, t0)
-                _record_call(acc, result, elapsed)
+                elapsed = _leave_call(acc, t0, is_outer)
+                if is_outer:
+                    _record_call(acc, result, elapsed)
                 return result
 
             return await_wrapper()
 
-        elapsed = _leave_call(acc, t0)
-        _record_call(acc, raw, elapsed)
+        elapsed = _leave_call(acc, t0, is_outer)
+        if is_outer:
+            _record_call(acc, raw, elapsed)
         return raw
 
     setattr(universal_wrapper, _SENTINEL, True)
