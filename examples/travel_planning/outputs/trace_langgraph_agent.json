@@ -1,0 +1,123 @@
+{
+  "paradigm": "LangGraph",
+  "tool_mode": "probabilistic (agent-bound)",
+  "steps": [
+    {
+      "agent": "Planner",
+      "prompt_issued": "You are the Planner. Plan trip BOS -> NYC, dates 2026-08-01/2026-08-05, budget $500. JSON: {\"action\":\"delegate\"}",
+      "llm_calls": 1,
+      "input_tokens": 45,
+      "output_tokens": 256,
+      "state_snapshot": {
+        "origin": "BOS",
+        "destination": "NYC",
+        "dates": "2026-08-01/2026-08-05",
+        "budget": 500,
+        "chosen_flight": {},
+        "chosen_hotel": {},
+        "running_cost": 0,
+        "status": "delegating"
+      },
+      "communication": "graph_edge",
+      "tool_invocations": []
+    },
+    {
+      "agent": "Flight",
+      "prompt_issued": "You are the Flight agent for NYC. Optionally call Web to search flights, or respond with JSON only.",
+      "llm_calls": 1,
+      "input_tokens": 81,
+      "output_tokens": 33,
+      "state_snapshot": {
+        "origin": "BOS",
+        "destination": "NYC",
+        "dates": "2026-08-01/2026-08-05",
+        "budget": 500,
+        "chosen_flight": {},
+        "chosen_hotel": {},
+        "running_cost": 0,
+        "status": "delegating"
+      },
+      "communication": "graph_edge",
+      "tool_invocations": []
+    },
+    {
+      "agent": "Hotel",
+      "prompt_issued": "You are the Hotel agent for NYC. Optionally call Web to search hotels, or respond with JSON only.",
+      "llm_calls": 2,
+      "input_tokens": 162,
+      "output_tokens": 75,
+      "state_snapshot": {
+        "origin": "BOS",
+        "destination": "NYC",
+        "dates": "2026-08-01/2026-08-05",
+        "budget": 500,
+        "chosen_flight": {},
+        "chosen_hotel": {},
+        "running_cost": 0,
+        "status": "delegating"
+      },
+      "communication": "graph_edge",
+      "tool_invocations": []
+    },
+    {
+      "agent": "Budget",
+      "prompt_issued": "You are the Budget agent. Budget is $500. Optionally call Cal to sum costs, or respond with JSON only.",
+      "llm_calls": 1,
+      "input_tokens": 79,
+      "output_tokens": 23,
+      "state_snapshot": {
+        "origin": "BOS",
+        "destination": "NYC",
+        "dates": "2026-08-01/2026-08-05",
+        "budget": 500,
+        "chosen_flight": {},
+        "chosen_hotel": {},
+        "running_cost": 0,
+        "status": "incomplete"
+      },
+      "communication": "graph_edge",
+      "tool_invocations": [
+        {
+          "tool": "Cal",
+          "args": {
+            "flight_price": 300,
+            "hotel_price": 200,
+            "budget": 500
+          },
+          "result": {
+            "total": 500,
+            "within_budget": true
+          },
+          "invocation": "probabilistic",
+          "invoked_by": "agent"
+        }
+      ]
+    }
+  ],
+  "summary": {
+    "paradigm": "LangGraph",
+    "tool_mode": "probabilistic (agent-bound)",
+    "total_llm_calls": 5,
+    "total_input_tokens": 367,
+    "total_output_tokens": 387,
+    "total_tool_calls": 1,
+    "deterministic_tool_calls": 0,
+    "probabilistic_tool_calls": 1,
+    "steps": 4,
+    "web_invoked": false,
+    "cal_invoked": true,
+    "plan_complete": false,
+    "final_itinerary": "Trip BOS -> NYC (2026-08-01/2026-08-05): flight=none ($0), hotel=none ($0), total=$0, budget=$500, status=incomplete",
+    "budget_satisfied": false
+  },
+  "final_state": {
+    "origin": "BOS",
+    "destination": "NYC",
+    "dates": "2026-08-01/2026-08-05",
+    "budget": 500,
+    "chosen_flight": {},
+    "chosen_hotel": {},
+    "running_cost": 0,
+    "status": "incomplete"
+  }
+}

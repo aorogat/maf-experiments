@@ -1,0 +1,18 @@
+% Frozen column order for W2-W2 — do not reorder or rename.
+% Invoked? includes Plan=Y/N: whether flight+hotel were selected.
+% LangGraph agent-bound may show Web=N, Cal=Y, Plan=N — probabilistic skip
+% of required tools (incomplete plan), not a harness bug. Graph-node cannot skip.
+\begin{table}[h]
+\centering
+\caption{Tool invocation comparison: deterministic (graph-node) vs probabilistic (agent-bound).}
+\begin{tabular}{llrlrl}
+\toprule
+Paradigm & Tool mode & Tool-call count & Invoked? & LLM calls & Tokens (in/out) \\
+\midrule
+LangGraph & deterministic (graph-node) & 3 & Web=Y, Cal=Y, Plan=Y & 5 & 168/127 \\
+LangGraph & probabilistic (agent-bound) & 1 & Web=N, Cal=Y, Plan=N & 5 & 367/387 \\
+CrewAI & probabilistic (agent-bound) & 6 & Web=Y, Cal=Y, Plan=Y & 7 & 2677/459 \\
+GABM & environment-executed & 3 & Web=Y, Cal=Y, Plan=Y & 4 & 296/208 \\
+\bottomrule
+\end{tabular}
+\end{table}
