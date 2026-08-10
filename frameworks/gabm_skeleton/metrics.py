@@ -6,6 +6,33 @@ from dataclasses import dataclass, field
 
 
 @dataclass
+class InvocationRecorder:
+    """Per-invocation / per-node usage; safe under parallel agent fan-out.
+
+    Clients write the usage of *this* call into the recorder so callers do not
+    derive attribution from shared Metrics deltas (which race under concurrency).
+    """
+
+    llm_calls: int = 0
+    input_tokens: int = 0
+    output_tokens: int = 0
+    llm_time_s: float = 0.0
+
+    def add(
+        self,
+        *,
+        llm_calls: int = 1,
+        input_tokens: int = 0,
+        output_tokens: int = 0,
+        llm_time_s: float = 0.0,
+    ) -> None:
+        self.llm_calls += llm_calls
+        self.input_tokens += input_tokens
+        self.output_tokens += output_tokens
+        self.llm_time_s += llm_time_s
+
+
+@dataclass
 class Metrics:
     llm_calls: int = 0
     input_tokens: int = 0

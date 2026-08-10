@@ -2,7 +2,7 @@ from crewai import Agent, Crew, Process, Task
 from crewai.project import CrewBase, agent, task, crew
 from typing import List
 from crewai.agents.agent_builder.base_agent import BaseAgent
-from single_agent.reasoning.config import CONFIG
+from single_agent.reasoning.config import CONFIG, resolve_llm
 
 @CrewBase
 class SingleAgentCrewGSM8K():
@@ -15,7 +15,7 @@ class SingleAgentCrewGSM8K():
     def reasoner(self) -> Agent:
         return Agent(
             config=self.agents_config['reasoner'],
-            llm=CONFIG["llm"],
+            llm=resolve_llm(CONFIG["llm"]),
             verbose=True
         )
 
@@ -39,7 +39,7 @@ class SingleAgentCrewGSM8K():
         print(CONFIG.get("planning"))
         if CONFIG.get("planning", False):
             kwargs["planning"] = True
-            kwargs["planning_llm"] = CONFIG["planning_llm"]
+            kwargs["planning_llm"] = resolve_llm(CONFIG["planning_llm"])
 
         return Crew(**kwargs)
 

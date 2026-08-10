@@ -22,6 +22,25 @@
       "tool_invocations": []
     },
     {
+      "agent": "Hotel",
+      "prompt_issued": "You are the Hotel agent. Book accommodation in NYC. Return JSON: {\"action\": \"search_hotel\"}",
+      "llm_calls": 1,
+      "input_tokens": 29,
+      "output_tokens": 12,
+      "state_snapshot": {
+        "origin": "BOS",
+        "destination": "NYC",
+        "dates": "2026-08-01/2026-08-05",
+        "budget": 500,
+        "chosen_flight": {},
+        "chosen_hotel": {},
+        "running_cost": 0,
+        "status": "delegating"
+      },
+      "communication": "graph_edge",
+      "tool_invocations": []
+    },
+    {
       "agent": "Flight",
       "prompt_issued": "You are the Flight agent. Select a flight to NYC. Return JSON: {\"action\": \"search_flight\"}",
       "llm_calls": 1,
@@ -39,69 +58,6 @@
       },
       "communication": "graph_edge",
       "tool_invocations": []
-    },
-    {
-      "agent": "Hotel",
-      "prompt_issued": "You are the Hotel agent. Book accommodation in NYC. Return JSON: {\"action\": \"search_hotel\"}",
-      "llm_calls": 2,
-      "input_tokens": 59,
-      "output_tokens": 24,
-      "state_snapshot": {
-        "origin": "BOS",
-        "destination": "NYC",
-        "dates": "2026-08-01/2026-08-05",
-        "budget": 500,
-        "chosen_flight": {},
-        "chosen_hotel": {},
-        "running_cost": 0,
-        "status": "delegating"
-      },
-      "communication": "graph_edge",
-      "tool_invocations": []
-    },
-    {
-      "agent": "Flight",
-      "prompt_issued": "[graph tool node: Web flight search]",
-      "llm_calls": 0,
-      "input_tokens": 0,
-      "output_tokens": 0,
-      "state_snapshot": {
-        "origin": "BOS",
-        "destination": "NYC",
-        "dates": "2026-08-01/2026-08-05",
-        "budget": 500,
-        "chosen_flight": {
-          "id": "AA100",
-          "price": 300,
-          "airline": "AA"
-        },
-        "chosen_hotel": {},
-        "running_cost": 0,
-        "status": "delegating"
-      },
-      "communication": "graph_edge",
-      "tool_invocations": [
-        {
-          "tool": "Web",
-          "args": {
-            "query": "flight NYC",
-            "destination": "NYC",
-            "kind": "flight"
-          },
-          "result": {
-            "options": [
-              {
-                "id": "AA100",
-                "price": 300,
-                "airline": "AA"
-              }
-            ],
-            "kind": "flight"
-          },
-          "invocation": "deterministic",
-          "invoked_by": "graph_node"
-        }
-      ]
     },
     {
       "agent": "Hotel",
@@ -148,11 +104,55 @@
       ]
     },
     {
+      "agent": "Flight",
+      "prompt_issued": "[graph tool node: Web flight search]",
+      "llm_calls": 0,
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "state_snapshot": {
+        "origin": "BOS",
+        "destination": "NYC",
+        "dates": "2026-08-01/2026-08-05",
+        "budget": 500,
+        "chosen_flight": {
+          "id": "AA100",
+          "price": 300,
+          "airline": "AA"
+        },
+        "chosen_hotel": {},
+        "running_cost": 0,
+        "status": "delegating"
+      },
+      "communication": "graph_edge",
+      "tool_invocations": [
+        {
+          "tool": "Web",
+          "args": {
+            "query": "flight NYC",
+            "destination": "NYC",
+            "kind": "flight"
+          },
+          "result": {
+            "options": [
+              {
+                "id": "AA100",
+                "price": 300,
+                "airline": "AA"
+              }
+            ],
+            "kind": "flight"
+          },
+          "invocation": "deterministic",
+          "invoked_by": "graph_node"
+        }
+      ]
+    },
+    {
       "agent": "Budget",
       "prompt_issued": "You are the Budget agent. Review costs against budget $500. Return JSON: {\"action\": \"check_budget\"}",
       "llm_calls": 1,
       "input_tokens": 30,
-      "output_tokens": 81,
+      "output_tokens": 11,
       "state_snapshot": {
         "origin": "BOS",
         "destination": "NYC",
@@ -220,9 +220,9 @@
   "summary": {
     "paradigm": "LangGraph",
     "tool_mode": "deterministic (graph-node)",
-    "total_llm_calls": 5,
-    "total_input_tokens": 168,
-    "total_output_tokens": 127,
+    "total_llm_calls": 4,
+    "total_input_tokens": 138,
+    "total_output_tokens": 45,
     "total_tool_calls": 3,
     "deterministic_tool_calls": 3,
     "probabilistic_tool_calls": 0,

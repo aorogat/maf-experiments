@@ -76,6 +76,25 @@ class TestLangGraph(unittest.TestCase):
         self.assertGreater(first_budget, last_flight)
         self.assertGreater(first_budget, last_hotel)
 
+    def test_per_node_attribution_matches_client_totals(self):
+        """Parallel Flight∥Hotel must not double-count via shared Metrics deltas."""
+        stub = StubLLMClient(responses=['{"action":"delegate"}'] * 10)
+        trace = run_langgraph(TripRequest(), tool_mode="node", llm_client=stub)
+        client = trace.metrics
+        assert client is not None
+        step_calls = sum(s.llm_calls for s in trace.steps)
+        step_in = sum(s.input_tokens for s in trace.steps)
+        step_out = sum(s.output_tokens for s in trace.steps)
+        self.assertEqual(step_calls, client.llm_calls)
+        self.assertEqual(step_in, client.input_tokens)
+        self.assertEqual(step_out, client.output_tokens)
+        # Four agent LLM nodes; tool nodes contribute 0
+        self.assertEqual(client.llm_calls, 4)
+        agent_steps = [s for s in trace.steps if s.llm_calls > 0]
+        self.assertEqual(len(agent_steps), 4)
+        for s in agent_steps:
+            self.assertEqual(s.llm_calls, 1)
+
 
 if __name__ == "__main__":
     unittest.main()

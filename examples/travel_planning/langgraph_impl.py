@@ -2,13 +2,14 @@
 
 from __future__ import annotations
 
+import json
 from copy import deepcopy
 from typing import Literal, TypedDict
 
 from langgraph.graph import END, StateGraph
 
 from frameworks.gabm_skeleton.llm_client import InstrumentedOpenAIClient, StubLLMClient
-from frameworks.gabm_skeleton.metrics import Metrics
+from frameworks.gabm_skeleton.metrics import InvocationRecorder, Metrics
 
 from examples.travel_planning.client_ext import ToolCallingClient, ToolCallingStub
 from examples.travel_planning.task import (
@@ -46,19 +47,6 @@ class GraphState(TypedDict, total=False):
     status: str
 
 
-def _metrics_delta(metrics: Metrics, before: tuple[int, int, int]) -> tuple[int, int, int]:
-    """Return (llm_calls, input_tokens, output_tokens) since before snapshot."""
-    return (
-        metrics.llm_calls - before[0],
-        metrics.input_tokens - before[1],
-        metrics.output_tokens - before[2],
-    )
-
-
-def _snapshot_metrics(metrics: Metrics) -> tuple[int, int, int]:
-    return metrics.llm_calls, metrics.input_tokens, metrics.output_tokens
-
-
 def _merged(state: GraphState, update: dict) -> dict:
     """Full state after applying a partial node update (for trace snapshots)."""
     return {**state, **update}
@@ -74,18 +62,19 @@ class _TraceCollector:
         self,
         agent: str,
         prompt: str,
-        metrics: Metrics,
-        before: tuple[int, int, int],
         state: dict,
         tools: list,
+        *,
+        recorder: InvocationRecorder | None = None,
     ) -> None:
-        llm_c, in_t, out_t = _metrics_delta(metrics, before)
+        """Record a step using per-node usage (not a shared-Metrics delta)."""
+        rec = recorder or InvocationRecorder()
         self.steps.append(TraceStep(
             agent=agent,
             prompt_issued=prompt,
-            llm_calls=llm_c,
-            input_tokens=in_t,
-            output_tokens=out_t,
+            llm_calls=rec.llm_calls,
+            input_tokens=rec.input_tokens,
+            output_tokens=rec.output_tokens,
             state_snapshot=deepcopy(state),
             communication="graph_edge",
             tool_invocations=list(tools),
@@ -125,6 +114,10 @@ def build_graph(
     Topology matches Figure 1(a): Planner -> {Flight, Hotel} (parallel) -> Budget.
     tool_mode='node': Cal/Web as graph tool nodes (deterministic, native LangGraph).
     tool_mode='agent': tools via ToolCallingClient (probabilistic; NOT native bind_tools).
+
+    Per-node LLM usage is attributed via InvocationRecorder passed into
+    complete / complete_with_tools — not via shared Metrics deltas (which race
+    under parallel Flight∥Hotel fan-out).
     """
     metrics = Metrics()
     if llm_client is None:
@@ -144,10 +137,10 @@ def build_graph(
                 f"{state['destination']} on {state['dates']} with budget ${state['budget']}. "
                 "Return JSON: {\"action\": \"delegate\"}"
             )
-            before = _snapshot_metrics(metrics)
-            llm_client.complete(prompt)
+            rec = InvocationRecorder()
+            llm_client.complete(prompt, recorder=rec)
             update = {"status": "delegating"}
-            collector.record(AGENT_PLANNER, prompt, metrics, before, _merged(state, update), [])
+            collector.record(AGENT_PLANNER, prompt, _merged(state, update), [], recorder=rec)
             return update
 
         def flight_agent_node(state: GraphState) -> dict:
@@ -155,9 +148,9 @@ def build_graph(
                 f"You are the Flight agent. Select a flight to {state['destination']}. "
                 "Return JSON: {\"action\": \"search_flight\"}"
             )
-            before = _snapshot_metrics(metrics)
-            llm_client.complete(prompt)
-            collector.record(AGENT_FLIGHT, prompt, metrics, before, dict(state), [])
+            rec = InvocationRecorder()
+            llm_client.complete(prompt, recorder=rec)
+            collector.record(AGENT_FLIGHT, prompt, dict(state), [], recorder=rec)
             return {}
 
         def web_flight_tool_node(state: GraphState) -> dict:
@@ -169,8 +162,8 @@ def build_graph(
             if options:
                 update["chosen_flight"] = options[0]
             collector.record(
-                AGENT_FLIGHT, "[graph tool node: Web flight search]", metrics,
-                _snapshot_metrics(metrics), _merged(state, update), [tc],
+                AGENT_FLIGHT, "[graph tool node: Web flight search]",
+                _merged(state, update), [tc],
             )
             return update
 
@@ -179,9 +172,9 @@ def build_graph(
                 f"You are the Hotel agent. Book accommodation in {state['destination']}. "
                 "Return JSON: {\"action\": \"search_hotel\"}"
             )
-            before = _snapshot_metrics(metrics)
-            llm_client.complete(prompt)
-            collector.record(AGENT_HOTEL, prompt, metrics, before, dict(state), [])
+            rec = InvocationRecorder()
+            llm_client.complete(prompt, recorder=rec)
+            collector.record(AGENT_HOTEL, prompt, dict(state), [], recorder=rec)
             return {}
 
         def web_hotel_tool_node(state: GraphState) -> dict:
@@ -193,8 +186,8 @@ def build_graph(
             if options:
                 update["chosen_hotel"] = options[0]
             collector.record(
-                AGENT_HOTEL, "[graph tool node: Web hotel search]", metrics,
-                _snapshot_metrics(metrics), _merged(state, update), [tc],
+                AGENT_HOTEL, "[graph tool node: Web hotel search]",
+                _merged(state, update), [tc],
             )
             return update
 
@@ -203,9 +196,9 @@ def build_graph(
                 f"You are the Budget agent. Review costs against budget ${state['budget']}. "
                 "Return JSON: {\"action\": \"check_budget\"}"
             )
-            before = _snapshot_metrics(metrics)
-            llm_client.complete(prompt)
-            collector.record(AGENT_BUDGET, prompt, metrics, before, dict(state), [])
+            rec = InvocationRecorder()
+            llm_client.complete(prompt, recorder=rec)
+            collector.record(AGENT_BUDGET, prompt, dict(state), [], recorder=rec)
             return {}
 
         def cal_tool_node(state: GraphState) -> dict:
@@ -218,8 +211,8 @@ def build_graph(
                 "status": resolve_budget_status(state, total, within_budget=within),
             }
             collector.record(
-                AGENT_BUDGET, "[graph tool node: Cal budget check]", metrics,
-                _snapshot_metrics(metrics), _merged(state, update), [tc],
+                AGENT_BUDGET, "[graph tool node: Cal budget check]",
+                _merged(state, update), [tc],
             )
             return update
 
@@ -248,38 +241,38 @@ def build_graph(
                 f"You are the Planner. Plan trip {state['origin']} -> {state['destination']}, "
                 f"dates {state['dates']}, budget ${state['budget']}. JSON: {{\"action\":\"delegate\"}}"
             )
-            before = _snapshot_metrics(metrics)
-            llm_client.complete(prompt)
+            rec = InvocationRecorder()
+            llm_client.complete(prompt, recorder=rec)
             update = {"status": "delegating"}
-            collector.record(AGENT_PLANNER, prompt, metrics, before, _merged(state, update), [])
+            collector.record(AGENT_PLANNER, prompt, _merged(state, update), [], recorder=rec)
             return update
 
         def flight_agent_node(state: GraphState) -> dict:
             prompt = (
-                f"You are the Flight agent for {state['destination']}. "
-                "Optionally call Web to search flights, or respond with JSON only."
+                f"Search flights to {state['destination']} using the Web tool if needed. "
+                f"Context: {json.dumps(dict(state))}"
             )
-            before = _snapshot_metrics(metrics)
-            result = llm_client.complete_with_tools(prompt, [WEB_TOOL_SCHEMA])
+            rec = InvocationRecorder()
+            result = llm_client.complete_with_tools(prompt, [WEB_TOOL_SCHEMA], recorder=rec)
             tools = list(result.tool_calls)
             update: dict = {}
             if tools and tools[0].result.get("options"):
                 update["chosen_flight"] = tools[0].result["options"][0]
-            collector.record(AGENT_FLIGHT, prompt, metrics, before, _merged(state, update), tools)
+            collector.record(AGENT_FLIGHT, prompt, _merged(state, update), tools, recorder=rec)
             return update
 
         def hotel_agent_node(state: GraphState) -> dict:
             prompt = (
-                f"You are the Hotel agent for {state['destination']}. "
-                "Optionally call Web to search hotels, or respond with JSON only."
+                f"Search hotels in {state['destination']} using the Web tool if needed. "
+                f"Context: {json.dumps(dict(state))}"
             )
-            before = _snapshot_metrics(metrics)
-            result = llm_client.complete_with_tools(prompt, [WEB_TOOL_SCHEMA])
+            rec = InvocationRecorder()
+            result = llm_client.complete_with_tools(prompt, [WEB_TOOL_SCHEMA], recorder=rec)
             tools = list(result.tool_calls)
             update = {}
             if tools and tools[0].result.get("options"):
                 update["chosen_hotel"] = tools[0].result["options"][0]
-            collector.record(AGENT_HOTEL, prompt, metrics, before, _merged(state, update), tools)
+            collector.record(AGENT_HOTEL, prompt, _merged(state, update), tools, recorder=rec)
             return update
 
         def budget_agent_node(state: GraphState) -> dict:
@@ -287,8 +280,8 @@ def build_graph(
                 f"You are the Budget agent. Budget is ${state['budget']}. "
                 "Optionally call Cal to sum costs, or respond with JSON only."
             )
-            before = _snapshot_metrics(metrics)
-            result = llm_client.complete_with_tools(prompt, [CAL_TOOL_SCHEMA])
+            rec = InvocationRecorder()
+            result = llm_client.complete_with_tools(prompt, [CAL_TOOL_SCHEMA], recorder=rec)
             tools = list(result.tool_calls)
             update = {}
             if tools and "total" in (tools[0].result or {}):
@@ -297,7 +290,7 @@ def build_graph(
                 if plan_complete(state):
                     update["running_cost"] = total
                 update["status"] = resolve_budget_status(state, total, within_budget=within)
-            collector.record(AGENT_BUDGET, prompt, metrics, before, _merged(state, update), tools)
+            collector.record(AGENT_BUDGET, prompt, _merged(state, update), tools, recorder=rec)
             return update
 
         workflow = StateGraph(GraphState)

@@ -31,12 +31,22 @@ MODEL_NAME_MAP = {
     "phi4:14b": "Phi-4-14B",
     "llama3.1:8b": "Llama-3.1-8B",
     "llama3.1:70b": "Llama-3.1-70B",
+    "groq:llama-3.1-8b-instant": "Llama-3.1-8B-Groq",
+    "llama-3.1-8b-instant": "Llama-3.1-8B-Groq",
     "deepseek-llm:7b": "DeepSeek-7B",
+    "groq:openai:gpt-oss:20b": "GPT-OSS-20B-Groq",
+    "openai:gpt-oss:20b": "GPT-OSS-20B-Groq",
     "qwen:7b": "Qwen-7B",
     "gpt-4.1": "GPT-4.1",
     "gpt-4o": "GPT-4o",
     "gpt-4o-mini": "GPT-4o-Mini",
     "gpt-4o-mini-high": "GPT-4o-Mini-High",
+    # Filename sanitizer turns provider/model into provider_model, then
+    # parse_filename remaps remaining underscores to colons.
+    "anthropic:claude-opus-5": "Claude-Opus-5",
+    "gemini:gemini-3.1-pro-preview": "Gemini-3.1-Pro",
+    "gpt-5.6-terra": "GPT-5.6-Terra",
+    "gpt-5.6-luna": "GPT-5.6-Luna",
 }
 
 

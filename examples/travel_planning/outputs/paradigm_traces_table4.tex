@@ -1,0 +1,17 @@
+\begin{table}[t]
+\centering\footnotesize
+\renewcommand{\arraystretch}{0.95}
+\setlength{\tabcolsep}{5pt}
+\caption{Paradigm traces on the running example (\emph{gpt-4o-mini}). Each paradigm runs the same task and tools; only orchestration varies. CrewAI's higher call count reflects its native internal retries.}
+\label{tab:paradigm-traces}
+\begin{tabular}{lllrr}
+\toprule
+Paradigm & Control flow & Prompts & LLM calls & Tokens (in/out) \\
+\midrule
+LangGraph      & graph edges   & full    & 4 & 138\,/\,45 \\
+CrewAI         & role hand-off & partial & 7 & 2{,}677\,/\,463 \\
+GABM skeleton  & env-mediated  & full    & 4 & 296\,/\,204 \\
+\bottomrule
+\end{tabular}
+\vspace{-3mm}
+\end{table}

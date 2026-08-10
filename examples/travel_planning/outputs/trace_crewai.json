@@ -7,7 +7,7 @@
       "prompt_issued": "Plan a trip from BOS to NYC, dates 2026-08-01/2026-08-05, budget $500. As Planner, outline the plan and delegate to Flight, Hotel, and Budget agents. Respond briefly with your coordination plan.",
       "llm_calls": 1,
       "input_tokens": 214,
-      "output_tokens": 181,
+      "output_tokens": 185,
       "state_snapshot": {
         "origin": "BOS",
         "destination": "NYC",
@@ -215,7 +215,7 @@
     "tool_mode": "probabilistic (agent-bound)",
     "total_llm_calls": 7,
     "total_input_tokens": 2677,
-    "total_output_tokens": 459,
+    "total_output_tokens": 463,
     "total_tool_calls": 6,
     "deterministic_tool_calls": 0,
     "probabilistic_tool_calls": 6,

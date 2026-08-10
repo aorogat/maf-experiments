@@ -57,10 +57,12 @@ import requests
 # ================================================================
 # CONFIG IS EMBEDDED IN THIS FILE (PER YOUR REQUEST)
 # ================================================================
+from single_agent.reasoning.config import no_thinking_kwargs
+
 CONFIG = {
     "planning": True,       # planning only
-    "llm": "gpt-4o-mini",
-    "planning_llm": "gpt-4o-mini",
+    "llm": "anthropic/claude-opus-5",
+    "planning_llm": "anthropic/claude-opus-5",
     "math_judge_llm": "gpt-4o-mini",
 
     "results_dir": "results/planning_direct",
@@ -98,12 +100,13 @@ def sanitize_filename_component(s: str, maxlen: int = 80) -> str:
 # LLM CALL HELPERS
 # ================================================================
 import subprocess
+import litellm
 
 def call_llm(model, messages):
     """
     Universal LLM caller:
-    - OpenAI models
     - Ollama local models (using subprocess)
+    - OpenAI / Anthropic / Gemini / others via LiteLLM
     """
 
     # Convert ChatML-style messages into a plaintext prompt for Ollama
@@ -142,18 +145,17 @@ def call_llm(model, messages):
         except Exception as e:
             return f"LLM_ERROR: Ollama subprocess failed → {e}"
 
-    # -------------------------------  
-    # 2) OPENAI MODE (default)  
+    # -------------------------------
+    # 2) LiteLLM (OpenAI / Anthropic / Gemini / ...)
     # -------------------------------
     try:
-        response = client.chat.completions.create(
-            model=model,
-            messages=messages
-        )
-        return response.choices[0].message.content  # ← FIXED
-
+        kwargs = {"model": model, "messages": messages}
+        # Non-CrewAI path: force reasoning/thinking off for frontier models
+        kwargs.update(no_thinking_kwargs(model))
+        response = litellm.completion(**kwargs)
+        return response.choices[0].message.content
     except Exception as e:
-        return f"LLM_ERROR: OpenAI API error → {e}"
+        return f"LLM_ERROR: LiteLLM API error → {e}"
 
 
 
@@ -340,7 +342,6 @@ def run_all_benchmarks_direct():
     Path(CONFIG["results_dir"]).mkdir(parents=True, exist_ok=True)
 
     llm_tag = sanitize_filename_component(str(CONFIG["llm"]))
-    llm_tag = "Groq_gpt_oss_20b" #Use only for groq
 
 
     plan_tag = "planning"
@@ -408,16 +409,40 @@ MODEL_CONFIGS = [
     #     "math_judge_llm": "gpt-4o-mini",
     # },
     # OpenAI Mini
-    {
-        "llm": "gpt-4o-mini",
-        "planning_llm": "gpt-4o-mini",
-        "math_judge_llm": "gpt-4o-mini",
-    },
+    # {
+    #     "llm": "gpt-4o-mini",
+    #     "planning_llm": "gpt-4o-mini",
+    #     "math_judge_llm": "gpt-4o-mini",
+    # },
     # OpenAI 4.1
     # {
     #     "llm": "gpt-4.1",
     #     "planning_llm": "gpt-4.1",
     #     "math_judge_llm": "gpt-4.1",
+    # },
+    # Claude Opus 5 (call_llm disables thinking via no_thinking_kwargs)
+    {
+        "llm": "anthropic/claude-opus-5",
+        "planning_llm": "anthropic/claude-opus-5",
+        "math_judge_llm": "gpt-4o-mini",
+    },
+    # Gemini 3.1 Pro
+    # {
+    #     "llm": "gemini/gemini-3.1-pro-preview",
+    #     "planning_llm": "gemini/gemini-3.1-pro-preview",
+    #     "math_judge_llm": "gpt-4o-mini",
+    # },
+    # GPT-5.6 Terra
+    # {
+    #     "llm": "gpt-5.6-terra",
+    #     "planning_llm": "gpt-5.6-terra",
+    #     "math_judge_llm": "gpt-4o-mini",
+    # },
+    # GPT-5.6 Luna
+    # {
+    #     "llm": "gpt-5.6-luna",
+    #     "planning_llm": "gpt-5.6-luna",
+    #     "math_judge_llm": "gpt-4o-mini",
     # },
 ]
 

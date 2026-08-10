@@ -7,7 +7,8 @@ import time
 from dataclasses import dataclass
 from typing import Any
 
-from frameworks.gabm_skeleton.llm_client import InstrumentedOpenAIClient, StubLLMClient
+from frameworks.gabm_skeleton.llm_client import InstrumentedOpenAIClient, StubLLMClient, record_usage
+from frameworks.gabm_skeleton.metrics import InvocationRecorder
 
 from examples.travel_planning.tools import execute_cal, execute_web
 from examples.travel_planning.trace import ToolCall
@@ -37,6 +38,7 @@ class ToolCallingClient(InstrumentedOpenAIClient):
         max_tokens: int = 256,
         temperature: float = 0,
         force_tool: str | None = None,
+        recorder: InvocationRecorder | None = None,
     ) -> ToolCallResult:
         """One LLM call; may return tool calls (probabilistic) or plain content."""
         t0 = time.perf_counter()
@@ -59,13 +61,13 @@ class ToolCallingClient(InstrumentedOpenAIClient):
         response = self.client.chat.completions.create(**kwargs)
         elapsed = time.perf_counter() - t0
 
-        if self.metrics is not None:
-            self.metrics.llm_calls += 1
-            self.metrics.llm_time_s += elapsed
-            usage = response.usage
-            if usage is not None:
-                self.metrics.input_tokens += getattr(usage, "prompt_tokens", 0) or 0
-                self.metrics.output_tokens += getattr(usage, "completion_tokens", 0) or 0
+        usage = response.usage
+        in_tok = (getattr(usage, "prompt_tokens", 0) or 0) if usage is not None else 0
+        out_tok = (getattr(usage, "completion_tokens", 0) or 0) if usage is not None else 0
+        record_usage(
+            self.metrics, recorder,
+            input_tokens=in_tok, output_tokens=out_tok, llm_time_s=elapsed,
+        )
 
         message = response.choices[0].message
         recorded: list[ToolCall] = []
@@ -137,12 +139,14 @@ class ToolCallingStub(StubLLMClient):
         max_tokens: int = 256,
         temperature: float = 0,
         force_tool: str | None = None,
+        recorder: InvocationRecorder | None = None,
     ) -> ToolCallResult:
         self.prompts.append(prompt)
-        if self.metrics is not None:
-            self.metrics.llm_calls += 1
-            self.metrics.input_tokens += self.input_tokens
-            self.metrics.output_tokens += self.output_tokens
+        record_usage(
+            self.metrics, recorder,
+            input_tokens=self.input_tokens,
+            output_tokens=self.output_tokens,
+        )
 
         if self._tool_index < len(self._tool_responses):
             stub = self._tool_responses[self._tool_index]
@@ -169,8 +173,17 @@ class ToolCallingStub(StubLLMClient):
             ))
         return ToolCallResult(content=stub.content, tool_calls=recorded)
 
-    def complete(self, prompt: str, *, max_tokens: int = 256, temperature: float = 0) -> str:
-        result = self.complete_with_tools(prompt, tools=None, max_tokens=max_tokens, temperature=temperature)
+    def complete(
+        self,
+        prompt: str,
+        *,
+        max_tokens: int = 256,
+        temperature: float = 0,
+        recorder: InvocationRecorder | None = None,
+    ) -> str:
+        result = self.complete_with_tools(
+            prompt, tools=None, max_tokens=max_tokens, temperature=temperature, recorder=recorder,
+        )
         if result.tool_calls:
             return json.dumps({"tool_called": result.tool_calls[0].tool})
         return result.content or "{}"

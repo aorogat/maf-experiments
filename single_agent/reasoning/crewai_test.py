@@ -30,7 +30,7 @@ from pathlib import Path
 from single_agent.reasoning.crew_gsm8k import SingleAgentCrewGSM8K
 from single_agent.reasoning.crew_csqa import SingleAgentCrewCSQA
 from single_agent.reasoning.crew_math import SingleAgentCrewMATH
-from single_agent.reasoning.config import CONFIG
+from single_agent.reasoning.config import CONFIG, MODEL_CONFIGS
 
 # Import benchmark classes
 from benchmarks.gsm8k import GSM8KBenchmark
@@ -126,9 +126,12 @@ def run_crewai_on_benchmark(benchmark, crew_cls, log_file, filename):
 
         except Exception as e:
             q_elapsed = time.perf_counter() - q_start
-            print(f"⚠️  Crew failed on Q{q.qid}: {e}")
-            # mark failure with None prediction
-            benchmark.set_pred(q, "FAILED", time_used=q_elapsed, tokens_out=0)
+            err = f"{type(e).__name__}: {e}"
+            print(f"⚠️  Crew failed on Q{q.qid}: {err}")
+            # Persist exception text so budget/API errors are visible in results JSON
+            benchmark.set_pred(
+                q, f"FAILED: {err}", time_used=q_elapsed, tokens_out=0, llm_response=err
+            )
             q.correct = False
 
     elapsed = time.perf_counter() - start
@@ -151,6 +154,7 @@ def run_all_benchmarks():
     plan_tag = "planning" if CONFIG.get("planning") else "noplanning"
     llm_tag  = sanitize_filename_component(str(CONFIG.get("llm", "model")))
     # llm_tag = "Groq_gpt_oss_20b" #Use only for groq
+    suffix = CONFIG.get("result_suffix") or ""
 
     
     if "csqa" in CONFIG["benchmarks"]:
@@ -158,7 +162,7 @@ def run_all_benchmarks():
         run_crewai_on_benchmark(
             bench, SingleAgentCrewCSQA,
             "logs/SingleAgentCrewCSQA.json",
-            f"crewai_csqa_{plan_tag}_{llm_tag}.json"
+            f"crewai_csqa_{plan_tag}_{llm_tag}{suffix}.json"
         )
 
     if "math" in CONFIG["benchmarks"]:  # Deepseek always fails in planning mode...
@@ -166,7 +170,7 @@ def run_all_benchmarks():
         run_crewai_on_benchmark(
             bench, SingleAgentCrewMATH,
             "logs/SingleAgentCrewMATH.json",
-            f"crewai_math_{plan_tag}_{llm_tag}.json"
+            f"crewai_math_{plan_tag}_{llm_tag}{suffix}.json"
         )
     
     if "gsm8k" in CONFIG["benchmarks"]:
@@ -174,14 +178,22 @@ def run_all_benchmarks():
         run_crewai_on_benchmark(
             bench, SingleAgentCrewGSM8K,
             "logs/SingleAgentCrewGSM8K.json",
-            f"crewai_gsm8k_{plan_tag}_{llm_tag}.json"
+            f"crewai_gsm8k_{plan_tag}_{llm_tag}{suffix}.json"
         )
 
 def main():
-    for planning in [False, True]:
-        CONFIG["planning"] = planning
-        print(f"\n=== Running benchmarks with planning={planning} ===")
-        run_all_benchmarks()
+    for cfg in MODEL_CONFIGS:
+        CONFIG.update(cfg)
+        print("\n==============================================")
+        print(f"   Running CrewAI configuration for LLM = {cfg['llm']}")
+        print("==============================================")
+        # Smoke / debug: planning only. Restore [False, True] for full experiment.
+        for planning in [True]:
+            CONFIG["planning"] = planning
+            print(f"\n=== Running benchmarks with planning={planning} ===")
+            run_all_benchmarks()
+
+    print("\n=== All Model Configurations Completed ===")
 
 
 if __name__ == "__main__":
