@@ -4,8 +4,8 @@ Determinism Test Runner
 Run the CrewAI planning experiment repeatedly on MATH-100 to measure
 LLM determinism (mean/std of accuracy & runtime, plus prediction consistency).
 
-Models: gpt-5.6-luna, gpt-5.6-terra, groq/llama-3.1-8b-instant
-  (Groq Llama 3.1 8B replaces local ollama/deepseek-llm:7b for speed.)
+Models: gpt-5.6-luna, gpt-5.6-terra, groq/llama-3.1-8b-instant,
+        groq/openai/gpt-oss-20b
 Mode:   planning=True only
 Runs:   5 per model
 
@@ -26,8 +26,13 @@ from single_agent.reasoning.crew_math import SingleAgentCrewMATH
 from benchmarks.math import MATHBenchmark
 
 
-# Luna/terra already completed; only Groq Llama remains.
-MODELS = ["groq/llama-3.1-8b-instant"]
+# Completed models are skipped via existing output files.
+MODELS = [
+    "gpt-5.6-luna",
+    "gpt-5.6-terra",
+    "groq/llama-3.1-8b-instant",
+    "groq/openai/gpt-oss-20b",
+]
 N_RUNS = 5
 OUT_DIR = "results/planning/determinism"
 

@@ -49,20 +49,19 @@ CONFIG = {
     # "math_judge_llm":  "gpt-4o-mini",
 
     "results_dir": "results/planning",
-    # Smoke test: few questions, planning only. Does NOT overwrite full experiment
-    # files (result_suffix="_smoke"). Restore full list / n_* / empty suffix later.
-    # "benchmarks": ["csqa","math","gsm8k"],
-    "benchmarks": ["math"],
+    # Full Crew-Plan Opus 5 rerun (overwrites broken planning_* files).
+    "benchmarks": ["csqa", "math", "gsm8k"],
+    # "benchmarks": ["math"],
     # "benchmarks": ["gsm8k", "csqa"],
     # "benchmarks": ["csqa"],
-    "n_gsm8k": 3,         # set None for full test set, a number for a subset
-    "n_csqa": 3,        # set None for full test set, a number for a subset
-    "n_math": 3,         # set None for full test set, a number for a subset
-    "result_suffix": "_smoke",  # set "" for normal experiment filenames
+    "n_gsm8k": None,       # full test set
+    "n_csqa": None,        # full validation set
+    "n_math": 100,         # MATH-100
+    "result_suffix": "",   # overwrite normal experiment filenames
 }
 
 # Sweep used by crewai_test when running multiple frontier models in one go.
-# CrewAI: pass model IDs only; let CrewAI/provider defaults decide thinking/reasoning.
+# CrewAI: resolve_llm() applies the same no_thinking_kwargs as Direct-LLM-Plan.
 MODEL_CONFIGS = [
     {
         "llm": "anthropic/claude-opus-5",
@@ -87,18 +86,10 @@ MODEL_CONFIGS = [
 ]
 
 
-def resolve_llm(model: str | None = None):
-    """
-    CrewAI model handle: return the model ID string and let CrewAI decide
-    thinking / reasoning settings (provider defaults).
-    """
-    return model if model is not None else CONFIG["llm"]
-
-
 def no_thinking_kwargs(model: str) -> dict:
     """
-    Extra LiteLLM kwargs to disable thinking/reasoning for non-CrewAI runners
-    (e.g. direct_llm_planning_test).
+    Extra kwargs to disable thinking/reasoning for planning runners
+    (CrewAI via resolve_llm, and Direct-LLM-Plan via litellm.completion).
 
     Provider differences:
     - GPT-5.6: reasoning_effort="none" (default otherwise is medium)
@@ -111,3 +102,18 @@ def no_thinking_kwargs(model: str) -> dict:
     if "claude-opus" in m:
         return {"thinking": {"type": "disabled"}}
     return {}
+
+
+def resolve_llm(model: str | None = None):
+    """
+    CrewAI LLM handle for reasoner and planning_llm.
+
+    Applies the same no_thinking_kwargs as Direct-LLM-Plan so NoPlan / Crew-Plan
+    and Direct-LLM-Plan share thinking/reasoning overrides. CrewAI maps
+    reasoning_effort as a first-class field; other keys (e.g. thinking) go through
+    LLM(**kwargs) -> additional_params -> LiteLLM.
+    """
+    from crewai import LLM
+
+    model_id = model if model is not None else CONFIG["llm"]
+    return LLM(model=model_id, **no_thinking_kwargs(model_id))

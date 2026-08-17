@@ -42,6 +42,8 @@ from single_agent.memory.helpers.common_agent_utils import (
 from single_agent.memory.config import (
     langgraph_llm_model,
     langgraph_llm_model_provider,
+    llm_temperature,
+    llm_max_tokens,
     storage_directory,
     chunk_max_tokens,
     RETRIEVAL_LIMIT,
@@ -110,6 +112,8 @@ def build_langgraph_agent():
         model=langgraph_llm_model,
         model_provider=langgraph_llm_model_provider,
         streaming=False,
+        temperature=llm_temperature,
+        max_tokens=llm_max_tokens,
     )
 
     def chat(state: MessagesState, *, store: BaseStore):

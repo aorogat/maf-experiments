@@ -1,8 +1,16 @@
 """
 Determinism Aggregator
 ----------------------
-Scan results/planning/determinism/ for repeated MATH-100 planning runs and
-compute mean/std of accuracy & runtime plus per-question prediction consistency.
+Scan results/planning/determinism/ for repeated MATH-100 planning runs.
+
+Correctness-based definitions (R runs, question q matched by qid):
+  c[q][r] ∈ {0,1},  k_q = Σ_r c[q][r]
+
+  Accuracy (%)  : per-run share correct; mean ± population SD across runs
+  Time (s)      : per-run metrics.time_total; mean ± population SD
+  Violations (%) : per-run share of preds starting with "FAILED:"; mean ± pop SD
+  Stable        : mean_q [ k_q ∈ {0, R} ]  (same correctness in all runs)
+  Modal         : mean_q max(k_q, R−k_q) / R
 
 Usage:
     source mafenv/bin/activate
@@ -15,18 +23,24 @@ import json
 import os
 import re
 import statistics
-from collections import Counter, defaultdict
+from collections import defaultdict
 from pathlib import Path
 from typing import Any
 
 
 RESULTS_DIR = Path("results/planning/determinism")
 SUMMARY_PATH = RESULTS_DIR / "determinism_summary.json"
+TEX_PATH = RESULTS_DIR / "determinism_table.tex"
 
 # crewai_math_planning_{model}_run{N}.json
-FILENAME_RE = re.compile(
-    r"^crewai_math_planning_(.+)_run(\d+)\.json$"
-)
+FILENAME_RE = re.compile(r"^crewai_math_planning_(.+)_run(\d+)\.json$")
+
+DISPLAY_NAME = {
+    "gpt-5.6-luna": "GPT-5.6-Luna",
+    "gpt-5.6-terra": "GPT-5.6-Terra",
+    "groq_llama-3.1-8b-instant": "Llama-3.1-8B (Groq)",
+    "groq_openai_gpt-oss-20b": "GPT-OSS-20B (Groq)",
+}
 
 
 def _safe_pstdev(values: list[float]) -> float:
@@ -34,18 +48,6 @@ def _safe_pstdev(values: list[float]) -> float:
     if len(values) < 2:
         return 0.0
     return statistics.pstdev(values)
-
-
-def _mean_std(values: list[float]) -> dict[str, float | None]:
-    if not values:
-        return {"mean": None, "std": None, "min": None, "max": None, "n": 0}
-    return {
-        "mean": statistics.mean(values),
-        "std": _safe_pstdev(values),
-        "min": min(values),
-        "max": max(values),
-        "n": len(values),
-    }
 
 
 def discover_runs(results_dir: Path) -> dict[str, list[tuple[int, Path]]]:
@@ -71,118 +73,94 @@ def load_run(path: Path) -> dict[str, Any]:
         return json.load(f)
 
 
-def per_question_consistency(runs: list[dict[str, Any]]) -> dict[str, Any]:
-    """
-    Compare predictions / correctness across runs, matched by qid.
+def is_schema_violation(pred: Any) -> bool:
+    return str(pred).startswith("FAILED:")
 
-    Returns:
-      fully_consistent_frac, mean_modal_agreement, correctness_flip_frac,
-      n_questions, n_runs
-    """
-    # qid -> list of (pred, correct) across runs
-    by_qid: dict[str, list[tuple[str | None, bool | None]]] = defaultdict(list)
 
-    for data in runs:
+def aggregate_model(model_tag: str, run_files: list[tuple[int, Path]]) -> dict[str, Any]:
+    runs = [load_run(path) for _, path in run_files]
+    R = len(runs)
+
+    correct: dict[str, list[int]] = defaultdict(list)
+    viol: dict[str, list[int]] = defaultdict(list)
+
+    per_run: list[dict[str, Any]] = []
+    for run_idx, ((_, path), run) in enumerate(zip(run_files, runs)):
         seen: set[str] = set()
-        for q in data.get("questions", []):
+        for q in run.get("questions", []):
             qid = str(q.get("qid"))
             if qid in seen:
                 continue
             seen.add(qid)
-            by_qid[qid].append((q.get("pred"), q.get("correct")))
+            correct[qid].append(1 if q.get("correct") else 0)
+            viol[qid].append(1 if is_schema_violation(q.get("pred")) else 0)
 
-    if not by_qid:
-        return {
-            "fully_consistent_frac": None,
-            "mean_modal_agreement": None,
-            "correctness_flip_frac": None,
-            "n_questions": 0,
-            "n_runs": len(runs),
-        }
-
-    n_questions = len(by_qid)
-    n_runs = len(runs)
-    fully_consistent = 0
-    modal_agreements: list[float] = []
-    correctness_flips = 0
-
-    for qid, entries in by_qid.items():
-        preds = [e[0] for e in entries]
-        corrects = [e[1] for e in entries]
-
-        # Pad missing runs with None so agreement denom is n_runs
-        while len(preds) < n_runs:
-            preds.append(None)
-            corrects.append(None)
-
-        if len(set(preds)) == 1:
-            fully_consistent += 1
-
-        counts = Counter(preds)
-        modal_count = counts.most_common(1)[0][1]
-        modal_agreements.append(modal_count / n_runs)
-
-        if len(set(corrects)) > 1:
-            correctness_flips += 1
-
-    return {
-        "fully_consistent_frac": fully_consistent / n_questions,
-        "mean_modal_agreement": statistics.mean(modal_agreements),
-        "correctness_flip_frac": correctness_flips / n_questions,
-        "n_questions": n_questions,
-        "n_runs": n_runs,
-    }
-
-
-def aggregate_model(model_tag: str, run_files: list[tuple[int, Path]]) -> dict[str, Any]:
-    runs_data: list[dict[str, Any]] = []
-    accuracies: list[float] = []
-    time_totals: list[float] = []
-    time_means: list[float] = []
-    per_run: list[dict[str, Any]] = []
-
-    for run_idx, path in run_files:
-        data = load_run(path)
-        runs_data.append(data)
-        metrics = data.get("metrics", {})
-        acc = metrics.get("accuracy")
-        tt = metrics.get("time_total")
-        tm = metrics.get("time_mean")
-
-        if acc is not None:
-            accuracies.append(float(acc))
-        if tt is not None:
-            time_totals.append(float(tt))
-        if tm is not None:
-            time_means.append(float(tm))
-
+        metrics = run.get("metrics", {})
         per_run.append({
-            "run": run_idx,
+            "run": run_files[run_idx][0],
             "file": path.name,
-            "accuracy": acc,
+            "accuracy": metrics.get("accuracy"),
             "correct": metrics.get("correct"),
             "total": metrics.get("total"),
-            "time_total": tt,
-            "time_mean": tm,
+            "time_total": metrics.get("time_total"),
+            "time_mean": metrics.get("time_mean"),
+            "violation_rate": (
+                sum(1 for q in run.get("questions", []) if is_schema_violation(q.get("pred")))
+                / max(1, len(run.get("questions", [])))
+            ),
         })
 
-    consistency = per_question_consistency(runs_data)
+    # Require full coverage across all R runs
+    qids = [q for q, v in correct.items() if len(v) == R]
+    if len(qids) != len(correct):
+        missing = sorted(set(correct) - set(qids))
+        raise AssertionError(
+            f"{model_tag}: runs do not cover the same questions "
+            f"({len(qids)}/{len(correct)} complete); e.g. {missing[:5]}"
+        )
+
+    # Per-run accuracy / violations as percentages
+    acc = [100.0 * statistics.mean(correct[q][r] for q in qids) for r in range(R)]
+    vio = [100.0 * statistics.mean(viol[q][r] for q in qids) for r in range(R)]
+    time = [
+        float(run["metrics"]["time_total"])
+        for run in runs
+        if run.get("metrics", {}).get("time_total") is not None
+    ]
+
+    k = {q: sum(correct[q]) for q in qids}
+    stable = statistics.mean(1.0 if k[q] in (0, R) else 0.0 for q in qids)
+    modal = statistics.mean(max(k[q], R - k[q]) / R for q in qids)
+
+    always_correct = statistics.mean(1.0 if k[q] == R else 0.0 for q in qids)
+    always_incorrect = statistics.mean(1.0 if k[q] == 0 else 0.0 for q in qids)
 
     return {
         "model": model_tag,
-        "n_runs": len(run_files),
+        "display_name": DISPLAY_NAME.get(model_tag, model_tag),
+        "n_runs": R,
+        "n_questions": len(qids),
         "per_run": per_run,
-        "accuracy": _mean_std(accuracies),
-        "time_total": _mean_std(time_totals),
-        "time_mean": _mean_std(time_means),
-        "consistency": consistency,
+        "accuracy_pct": {
+            "mean": statistics.mean(acc),
+            "std": _safe_pstdev(acc),
+            "values": acc,
+        },
+        "time_total": {
+            "mean": statistics.mean(time) if time else None,
+            "std": _safe_pstdev(time) if time else None,
+            "values": time,
+        },
+        "violations_pct": {
+            "mean": statistics.mean(vio),
+            "std": _safe_pstdev(vio),
+            "values": vio,
+        },
+        "stable": stable,
+        "modal": modal,
+        "always_correct": always_correct,
+        "always_incorrect": always_incorrect,
     }
-
-
-def _fmt(x: float | None, digits: int = 4) -> str:
-    if x is None:
-        return "n/a"
-    return f"{x:.{digits}f}"
 
 
 def print_table(summary: dict[str, Any]) -> None:
@@ -192,28 +170,72 @@ def print_table(summary: dict[str, Any]) -> None:
         return
 
     header = (
-        f"{'Model':<28} {'Acc μ':>8} {'Acc σ':>8} "
-        f"{'Ttot μ':>10} {'Ttot σ':>10} "
-        f"{'Tmean μ':>10} {'Tmean σ':>10} "
-        f"{'FullCons':>9} {'ModalAgr':>9} {'CorrFlip':>9}"
+        f"{'Model':<28} {'Acc %':>14} {'Time s':>14} "
+        f"{'Viol %':>14} {'Stable':>8} {'Modal':>8}"
     )
     print("\n" + header)
     print("-" * len(header))
 
     for m in models:
+        acc = m["accuracy_pct"]
+        tt = m["time_total"]
+        vio = m["violations_pct"]
         print(
-            f"{m['model']:<28} "
-            f"{_fmt(m['accuracy']['mean']):>8} {_fmt(m['accuracy']['std']):>8} "
-            f"{_fmt(m['time_total']['mean'], 2):>10} {_fmt(m['time_total']['std'], 2):>10} "
-            f"{_fmt(m['time_mean']['mean'], 2):>10} {_fmt(m['time_mean']['std'], 2):>10} "
-            f"{_fmt(m['consistency']['fully_consistent_frac']):>9} "
-            f"{_fmt(m['consistency']['mean_modal_agreement']):>9} "
-            f"{_fmt(m['consistency']['correctness_flip_frac']):>9}"
+            f"{m['display_name']:<28} "
+            f"{acc['mean']:6.1f} ± {acc['std']:<5.1f} "
+            f"{tt['mean']:7.0f} ± {tt['std']:<5.0f} "
+            f"{vio['mean']:6.1f} ± {vio['std']:<5.1f} "
+            f"{m['stable']:8.2f} "
+            f"{m['modal']:8.2f}"
         )
     print()
-    print("FullCons  = fraction of questions with identical pred across all runs")
-    print("ModalAgr  = mean over questions of (modal pred count / n_runs)")
-    print("CorrFlip  = fraction of questions whose correct flag flips across runs")
+    print("Accuracy / Time / Violations use population SD (statistics.pstdev).")
+    print("Stable = share of questions with identical correctness on all runs.")
+    print("Modal  = mean_q max(k_q, R-k_q) / R  (majority-label agreement).")
+    print("Violations = share of questions whose pred starts with 'FAILED:'.")
+
+
+def write_tex(summary: dict[str, Any], path: Path) -> None:
+    rows = []
+    for m in summary.get("models", []):
+        acc = m["accuracy_pct"]
+        tt = m["time_total"]
+        vio = m["violations_pct"]
+        rows.append(
+            f"{m['display_name']} & "
+            f"${acc['mean']:.1f} \\pm {acc['std']:.1f}$ & "
+            f"${tt['mean']:.0f} \\pm {tt['std']:.0f}$ & "
+            f"${vio['mean']:.1f} \\pm {vio['std']:.1f}$ & "
+            f"${m['stable']:.2f}$ & "
+            f"${m['modal']:.2f}$ \\\\"
+        )
+
+    tex = r"""\begin{table}[t]
+\centering
+\footnotesize
+\caption{Determinism of CrewAI planning on MATH-100 over five independent runs.
+Accuracy, total wall-clock time, and schema-violation rate (share of predictions
+starting with \texttt{FAILED:}) are reported as mean~$\pm$~population standard
+deviation across runs. Stable is the share of questions whose correctness label
+is identical in all runs; Modal is the mean, over questions, of the fraction of
+runs that agree with that question's majority correctness label.}
+\label{tab:determinism-math100}
+\begin{tabular}{lccccc}
+\toprule
+\textbf{Model} &
+\textbf{Accuracy (\%)} &
+\textbf{Time (s)} &
+\textbf{Violations (\%)} &
+\textbf{Stable} &
+\textbf{Modal} \\
+\midrule
+""" + "\n".join(rows) + r"""
+\bottomrule
+\end{tabular}
+\end{table}
+"""
+    path.write_text(tex, encoding="utf-8")
+    print(f"📄 Wrote LaTeX table to {path}")
 
 
 def main():
@@ -224,6 +246,14 @@ def main():
 
     summary = {
         "results_dir": str(RESULTS_DIR),
+        "std": "population (statistics.pstdev)",
+        "definitions": {
+            "accuracy_pct": "per-run mean_q c[q][r]*100; mean ± pstdev across runs",
+            "time_total": "metrics.time_total; mean ± pstdev across runs",
+            "violations_pct": "per-run share pred.startswith('FAILED:')*100; mean ± pstdev",
+            "stable": "mean_q [k_q in {0,R}]",
+            "modal": "mean_q max(k_q, R-k_q)/R",
+        },
         "models": models_out,
     }
 
@@ -233,6 +263,7 @@ def main():
     print(f"📄 Wrote summary to {SUMMARY_PATH}")
 
     print_table(summary)
+    write_tex(summary, TEX_PATH)
 
 
 if __name__ == "__main__":
