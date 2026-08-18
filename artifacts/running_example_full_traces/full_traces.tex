@@ -1,0 +1,150 @@
+% Full running-example traces (Footnote 2 / supplementary materials).
+% Complements Table~\ref{tab:paradigm-traces} (summary) and Table~\ref{tab:tool-invocation}.
+% Source JSONs: examples/travel_planning/outputs/trace_{langgraph_node,crewai,gabm}.json
+% Regenerated into artifacts/running_example_full_traces/
+\section{Full traces for the running example}
+\label{app:running-example-traces}
+
+\noindent
+Same fixed trip (BOS$\to$NYC, 2026-08-01/05, budget \$500; agents Planner/Flight/Hotel/Budget;
+tools Web and Cal; model \emph{gpt-4o-mini}). Only orchestration varies.
+These listings expand Table~\ref{tab:paradigm-traces}: issued prompts, per-call token counts,
+state carried between steps, and tool-call sites.
+CrewAI prompts are \emph{partial} (task descriptions rebuilt from shared state); native
+internal planner text is not fully retrievable.
+LangGraph graph tool nodes appear as zero-token steps with \texttt{invoked\_by=graph\_node}.
+
+\subsection{LangGraph (graph-node / deterministic tools)}
+\label{app:trace-langgraph}
+Control flow: \emph{graph edges}. Prompt capture: \emph{full}. Totals: 4 LLM calls, 138\,/\,45 tokens (in/out), 3 tool invocations (3 deterministic / 0 probabilistic). Final: Trip BOS -> NYC (2026-08-01/2026-08-05): flight=AA100 (\$300), hotel=H1 (\$150), total=\$450, budget=\$500, status=approved.
+
+\begin{enumerate}
+\item \textbf{Planner} (communication: \texttt{graph\_edge})
+\begin{description}[style=nextline,leftmargin=1.2em,font=\normalfont\itshape]
+\item[Prompt] \begin{quote}\footnotesize\ttfamily You are the Planner agent. Coordinate a trip from BOS to NYC on 2026-08-01/2026-08-05 with budget \$500. Return JSON: \{"action": "delegate"\}\end{quote}
+\item[Tokens] LLM calls~=~1; in~=~49; out~=~10
+\item[State after] \footnotesize\texttt{\{"origin":"BOS","destination":"NYC","dates":"2026-08-01/2026-08-05","budget":500,"chosen\_flight":\{\},"chosen\_hotel":\{\},"running\_cost":0,"status":"delegating"\}}
+\item[Tool call sites] \emph{(none)}
+\end{description}
+\item \textbf{Hotel} (communication: \texttt{graph\_edge})
+\begin{description}[style=nextline,leftmargin=1.2em,font=\normalfont\itshape]
+\item[Prompt] \begin{quote}\footnotesize\ttfamily You are the Hotel agent. Book accommodation in NYC. Return JSON: \{"action": "search\_hotel"\}\end{quote}
+\item[Tokens] LLM calls~=~1; in~=~29; out~=~12
+\item[State after] \footnotesize\texttt{\{"origin":"BOS","destination":"NYC","dates":"2026-08-01/2026-08-05","budget":500,"chosen\_flight":\{\},"chosen\_hotel":\{\},"running\_cost":0,"status":"delegating"\}}
+\item[Tool call sites] \emph{(none)}
+\end{description}
+\item \textbf{Flight} (communication: \texttt{graph\_edge})
+\begin{description}[style=nextline,leftmargin=1.2em,font=\normalfont\itshape]
+\item[Prompt] \begin{quote}\footnotesize\ttfamily You are the Flight agent. Select a flight to NYC. Return JSON: \{"action": "search\_flight"\}\end{quote}
+\item[Tokens] LLM calls~=~1; in~=~30; out~=~12
+\item[State after] \footnotesize\texttt{\{"origin":"BOS","destination":"NYC","dates":"2026-08-01/2026-08-05","budget":500,"chosen\_flight":\{\},"chosen\_hotel":\{\},"running\_cost":0,"status":"delegating"\}}
+\item[Tool call sites] \emph{(none)}
+\end{description}
+\item \textbf{Hotel} (communication: \texttt{graph\_edge})
+\begin{description}[style=nextline,leftmargin=1.2em,font=\normalfont\itshape]
+\item[Prompt] \begin{quote}\footnotesize\ttfamily [graph tool node: Web hotel search]\end{quote}
+\item[Tokens] LLM calls~=~0; in~=~0; out~=~0
+\item[State after] \footnotesize\texttt{\{"origin":"BOS","destination":"NYC","dates":"2026-08-01/2026-08-05","budget":500,"chosen\_flight":\{\},"chosen\_hotel":\{"id":"H1","price":150,"name":"City Inn"\},"running\_cost":0,"status":"delegating"\}}
+\item[Tool call sites] \texttt{Web} [deterministic/by=graph\_node]; args={\small\texttt{\{"query":"hotel NYC","destination":"NYC","kind":"hotel"\}}}; result={\small\texttt{\{"options":[\{"id":"H1","price":150,"name":"City Inn"\}],"kind":"hotel"\}}}
+\end{description}
+\item \textbf{Flight} (communication: \texttt{graph\_edge})
+\begin{description}[style=nextline,leftmargin=1.2em,font=\normalfont\itshape]
+\item[Prompt] \begin{quote}\footnotesize\ttfamily [graph tool node: Web flight search]\end{quote}
+\item[Tokens] LLM calls~=~0; in~=~0; out~=~0
+\item[State after] \footnotesize\texttt{\{"origin":"BOS","destination":"NYC","dates":"2026-08-01/2026-08-05","budget":500,"chosen\_flight":\{"id":"AA100","price":300,"airline":"AA"\},"chosen\_hotel":\{\},"running\_cost":0,"status":"delegating"\}}
+\item[Tool call sites] \texttt{Web} [deterministic/by=graph\_node]; args={\small\texttt{\{"query":"flight NYC","destination":"NYC","kind":"flight"\}}}; result={\small\texttt{\{"options":[\{"id":"AA100","price":300,"airline":"AA"\}],"kind":"flight"\}}}
+\end{description}
+\item \textbf{Budget} (communication: \texttt{graph\_edge})
+\begin{description}[style=nextline,leftmargin=1.2em,font=\normalfont\itshape]
+\item[Prompt] \begin{quote}\footnotesize\ttfamily You are the Budget agent. Review costs against budget \$500. Return JSON: \{"action": "check\_budget"\}\end{quote}
+\item[Tokens] LLM calls~=~1; in~=~30; out~=~11
+\item[State after] \footnotesize\texttt{\{"origin":"BOS","destination":"NYC","dates":"2026-08-01/2026-08-05","budget":500,"chosen\_flight":\{"id":"AA100","price":300,"airline":"AA"\},"chosen\_hotel":\{"id":"H1","price":150,"name":"City Inn"\},"running\_cost":0,"status":"delegating"\}}
+\item[Tool call sites] \emph{(none)}
+\end{description}
+\item \textbf{Budget} (communication: \texttt{graph\_edge})
+\begin{description}[style=nextline,leftmargin=1.2em,font=\normalfont\itshape]
+\item[Prompt] \begin{quote}\footnotesize\ttfamily [graph tool node: Cal budget check]\end{quote}
+\item[Tokens] LLM calls~=~0; in~=~0; out~=~0
+\item[State after] \footnotesize\texttt{\{"origin":"BOS","destination":"NYC","dates":"2026-08-01/2026-08-05","budget":500,"chosen\_flight":\{"id":"AA100","price":300,"airline":"AA"\},"chosen\_hotel":\{"id":"H1","price":150,"name":"City Inn"\},"running\_cost":450,"status":"approved"\}}
+\item[Tool call sites] \texttt{Cal} [deterministic/by=graph\_node]; args={\small\texttt{\{"flight\_price":300,"hotel\_price":150,"budget":500\}}}; result={\small\texttt{\{"total":450,"within\_budget":true\}}}
+\end{description}
+\end{enumerate}
+
+\subsection{CrewAI (agent-bound / probabilistic tools)}
+\label{app:trace-crewai}
+Control flow: \emph{role hand-off}. Prompt capture: \emph{partial (task descriptions + shared state; CrewAI internal planner prompts not fully exposed)}. Totals: 7 LLM calls, 2677\,/\,463 tokens (in/out), 6 tool invocations (0 deterministic / 6 probabilistic). Final: Trip BOS -> NYC (2026-08-01/2026-08-05): flight=AA100 (\$300), hotel=H1 (\$150), total=\$450, budget=\$500, status=approved.
+
+\begin{enumerate}
+\item \textbf{Planner} (communication: \texttt{role\_handoff})
+\begin{description}[style=nextline,leftmargin=1.2em,font=\normalfont\itshape]
+\item[Prompt] \begin{quote}\footnotesize\ttfamily Plan a trip from BOS to NYC, dates 2026-08-01/2026-08-05, budget \$500. As Planner, outline the plan and delegate to Flight, Hotel, and Budget agents. Respond briefly with your coordination plan.\end{quote}
+\item[Tokens] LLM calls~=~1; in~=~214; out~=~185
+\item[State after] \footnotesize\texttt{\{"origin":"BOS","destination":"NYC","dates":"2026-08-01/2026-08-05","budget":500,"chosen\_flight":\{\},"chosen\_hotel":\{\},"running\_cost":0,"status":"delegating"\}}
+\item[Tool call sites] \emph{(none)}
+\end{description}
+\item \textbf{Flight} (communication: \texttt{role\_handoff})
+\begin{description}[style=nextline,leftmargin=1.2em,font=\normalfont\itshape]
+\item[Prompt] \begin{quote}\footnotesize\ttfamily Search flights to NYC using the Web tool if needed. Context: \{"origin": "BOS", "destination": "NYC", "dates": "2026-08-01/2026-08-05", "budget": 500, "chosen\_flight": \{\}, "chosen\_hotel": \{\}, "running\_cost": 0, "status": "delegating"\}\end{quote}
+\item[Tokens] LLM calls~=~2; in~=~866; out~=~112
+\item[State after] \footnotesize\texttt{\{"origin":"BOS","destination":"NYC","dates":"2026-08-01/2026-08-05","budget":500,"chosen\_flight":\{"id":"AA100","price":300,"airline":"AA"\},"chosen\_hotel":\{\},"running\_cost":0,"status":"delegating"\}}
+\item[Tool call sites] \texttt{Web} [probabilistic/by=agent]; args={\small\texttt{\{"query":"flights from BOS to NYC","kind":"flight","destination":"NYC"\}}}; result={\small\texttt{\{"options":[\{"id":"AA100","price":300,"airline":"AA"\}],"kind":"flight"\}}}\\\texttt{Web} [probabilistic/by=agent]; args={\small\texttt{\{"query":"flights from BOS to NYC","kind":"flight","destination":"NYC"\}}}; result={\small\texttt{\{"options":[\{"id":"AA100","price":300,"airline":"AA"\}],"kind":"flight"\}}}
+\end{description}
+\item \textbf{Hotel} (communication: \texttt{role\_handoff})
+\begin{description}[style=nextline,leftmargin=1.2em,font=\normalfont\itshape]
+\item[Prompt] \begin{quote}\footnotesize\ttfamily Search hotels in NYC using the Web tool if needed. Context: \{"origin": "BOS", "destination": "NYC", "dates": "2026-08-01/2026-08-05", "budget": 500, "chosen\_flight": \{"id": "AA100", "price": 300, "airline": "AA"\}, "chosen\_hotel": \{\}, "running\_cost": 0, "status": "delegating"\}\end{quote}
+\item[Tokens] LLM calls~=~2; in~=~872; out~=~83
+\item[State after] \footnotesize\texttt{\{"origin":"BOS","destination":"NYC","dates":"2026-08-01/2026-08-05","budget":500,"chosen\_flight":\{"id":"AA100","price":300,"airline":"AA"\},"chosen\_hotel":\{"id":"H1","price":150,"name":"City Inn"\},"running\_cost":0,"status":"delegating"\}}
+\item[Tool call sites] \texttt{Web} [probabilistic/by=agent]; args={\small\texttt{\{"query":"hotels in NYC","kind":"hotel","destination":"NYC"\}}}; result={\small\texttt{\{"options":[\{"id":"H1","price":150,"name":"City Inn"\}],"kind":"hotel"\}}}\\\texttt{Web} [probabilistic/by=agent]; args={\small\texttt{\{"query":"hotels in NYC","kind":"hotel","destination":"NYC"\}}}; result={\small\texttt{\{"options":[\{"id":"H1","price":150,"name":"City Inn"\}],"kind":"hotel"\}}}
+\end{description}
+\item \textbf{Budget} (communication: \texttt{role\_handoff})
+\begin{description}[style=nextline,leftmargin=1.2em,font=\normalfont\itshape]
+\item[Prompt] \begin{quote}\footnotesize\ttfamily Calculate total cost with Cal tool. Flight price: 300, hotel price: 150, budget \$500.\end{quote}
+\item[Tokens] LLM calls~=~2; in~=~725; out~=~83
+\item[State after] \footnotesize\texttt{\{"origin":"BOS","destination":"NYC","dates":"2026-08-01/2026-08-05","budget":500,"chosen\_flight":\{"id":"AA100","price":300,"airline":"AA"\},"chosen\_hotel":\{"id":"H1","price":150,"name":"City Inn"\},"running\_cost":450,"status":"approved"\}}
+\item[Tool call sites] \texttt{Cal} [probabilistic/by=agent]; args={\small\texttt{\{"flight\_price":300,"hotel\_price":150,"budget":500\}}}; result={\small\texttt{\{"total":450,"within\_budget":true\}}}\\\texttt{Cal} [probabilistic/by=agent]; args={\small\texttt{\{"flight\_price":300,"hotel\_price":150,"budget":500\}}}; result={\small\texttt{\{"total":450,"within\_budget":true\}}}
+\end{description}
+\end{enumerate}
+
+\subsection{GABM skeleton (environment-mediated tools)}
+\label{app:trace-gabm}
+Control flow: \emph{env-mediated}. Prompt capture: \emph{full}. Totals: 4 LLM calls, 296\,/\,204 tokens (in/out), 3 tool invocations (3 deterministic / 0 probabilistic). Final: Trip BOS -> NYC (2026-08-01/2026-08-05): flight=AA100 (\$300), hotel=H1 (\$150), total=\$450, budget=\$500, status=approved.
+
+\begin{enumerate}
+\item \textbf{Planner} (communication: \texttt{gm\_mediated})
+\begin{description}[style=nextline,leftmargin=1.2em,font=\normalfont\itshape]
+\item[Prompt] \begin{quote}\footnotesize\ttfamily You are the Planner. Return JSON: \{"action": "delegate"\}
+Observation: \{"budget": 500, "dates": "2026-08-01/2026-08-05", "destination": "NYC", "origin": "BOS", "status": "planning"\}
+Respond with a single JSON object for your action.\end{quote}
+\item[Tokens] LLM calls~=~1; in~=~74; out~=~51
+\item[State after] \footnotesize\texttt{\{"origin":"BOS","destination":"NYC","dates":"2026-08-01/2026-08-05","budget":500,"chosen\_flight":\{"id":"AA100","price":300,"airline":"AA"\},"chosen\_hotel":\{"id":"H1","price":150,"name":"City Inn"\},"running\_cost":450,"status":"approved"\}}
+\item[Tool call sites] \emph{(none)}
+\end{description}
+\item \textbf{Flight} (communication: \texttt{gm\_mediated})
+\begin{description}[style=nextline,leftmargin=1.2em,font=\normalfont\itshape]
+\item[Prompt] \begin{quote}\footnotesize\ttfamily You are the Flight agent. Return JSON: \{"action": "select\_flight"\}
+Observation: \{"budget": 500, "dates": "2026-08-01/2026-08-05", "destination": "NYC", "origin": "BOS", "running\_cost": 0\}
+Respond with a single JSON object for your action.\end{quote}
+\item[Tokens] LLM calls~=~1; in~=~74; out~=~51
+\item[State after] \footnotesize\texttt{\{"origin":"BOS","destination":"NYC","dates":"2026-08-01/2026-08-05","budget":500,"chosen\_flight":\{"id":"AA100","price":300,"airline":"AA"\},"chosen\_hotel":\{"id":"H1","price":150,"name":"City Inn"\},"running\_cost":450,"status":"approved"\}}
+\item[Tool call sites] \texttt{Web} [deterministic/by=environment]; args={\small\texttt{\{"query":"flight NYC","destination":"NYC","kind":"flight"\}}}; result={\small\texttt{\{"id":"AA100","price":300,"airline":"AA"\}}}
+\end{description}
+\item \textbf{Hotel} (communication: \texttt{gm\_mediated})
+\begin{description}[style=nextline,leftmargin=1.2em,font=\normalfont\itshape]
+\item[Prompt] \begin{quote}\footnotesize\ttfamily You are the Hotel agent. Return JSON: \{"action": "select\_hotel"\}
+Observation: \{"budget": 500, "chosen\_flight": \{\}, "dates": "2026-08-01/2026-08-05", "destination": "NYC"\}
+Respond with a single JSON object for your action.\end{quote}
+\item[Tokens] LLM calls~=~1; in~=~74; out~=~51
+\item[State after] \footnotesize\texttt{\{"origin":"BOS","destination":"NYC","dates":"2026-08-01/2026-08-05","budget":500,"chosen\_flight":\{"id":"AA100","price":300,"airline":"AA"\},"chosen\_hotel":\{"id":"H1","price":150,"name":"City Inn"\},"running\_cost":450,"status":"approved"\}}
+\item[Tool call sites] \texttt{Web} [deterministic/by=environment]; args={\small\texttt{\{"query":"hotel NYC","destination":"NYC","kind":"hotel"\}}}; result={\small\texttt{\{"id":"H1","price":150,"name":"City Inn"\}}}
+\end{description}
+\item \textbf{Budget} (communication: \texttt{gm\_mediated})
+\begin{description}[style=nextline,leftmargin=1.2em,font=\normalfont\itshape]
+\item[Prompt] \begin{quote}\footnotesize\ttfamily You are the Budget agent. Return JSON: \{"action": "check\_budget"\}
+Observation: \{"budget": 500, "chosen\_flight": \{\}, "chosen\_hotel": \{\}, "running\_cost": 0, "status": "planning"\}
+Respond with a single JSON object for your action.\end{quote}
+\item[Tokens] LLM calls~=~1; in~=~74; out~=~51
+\item[State after] \footnotesize\texttt{\{"origin":"BOS","destination":"NYC","dates":"2026-08-01/2026-08-05","budget":500,"chosen\_flight":\{"id":"AA100","price":300,"airline":"AA"\},"chosen\_hotel":\{"id":"H1","price":150,"name":"City Inn"\},"running\_cost":450,"status":"approved"\}}
+\item[Tool call sites] \texttt{Cal} [deterministic/by=environment]; args={\small\texttt{\{"flight\_price":300,"hotel\_price":150,"budget":500\}}}; result={\small\texttt{\{"total":450,"within\_budget":true\}}}
+\end{description}
+\end{enumerate}
+

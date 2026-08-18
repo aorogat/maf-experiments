@@ -1,0 +1,247 @@
+{
+  "paradigm": "CrewAI",
+  "tool_mode": "probabilistic (agent-bound)",
+  "steps": [
+    {
+      "agent": "Planner",
+      "prompt_issued": "Plan a trip from BOS to NYC, dates 2026-08-01/2026-08-05, budget $500. As Planner, outline the plan and delegate to Flight, Hotel, and Budget agents. Respond briefly with your coordination plan.",
+      "llm_calls": 1,
+      "input_tokens": 214,
+      "output_tokens": 185,
+      "state_snapshot": {
+        "origin": "BOS",
+        "destination": "NYC",
+        "dates": "2026-08-01/2026-08-05",
+        "budget": 500,
+        "chosen_flight": {},
+        "chosen_hotel": {},
+        "running_cost": 0,
+        "status": "delegating"
+      },
+      "communication": "role_handoff",
+      "tool_invocations": []
+    },
+    {
+      "agent": "Flight",
+      "prompt_issued": "Search flights to NYC using the Web tool if needed. Context: {\"origin\": \"BOS\", \"destination\": \"NYC\", \"dates\": \"2026-08-01/2026-08-05\", \"budget\": 500, \"chosen_flight\": {}, \"chosen_hotel\": {}, \"running_cost\": 0, \"status\": \"delegating\"}",
+      "llm_calls": 2,
+      "input_tokens": 866,
+      "output_tokens": 112,
+      "state_snapshot": {
+        "origin": "BOS",
+        "destination": "NYC",
+        "dates": "2026-08-01/2026-08-05",
+        "budget": 500,
+        "chosen_flight": {
+          "id": "AA100",
+          "price": 300,
+          "airline": "AA"
+        },
+        "chosen_hotel": {},
+        "running_cost": 0,
+        "status": "delegating"
+      },
+      "communication": "role_handoff",
+      "tool_invocations": [
+        {
+          "tool": "Web",
+          "args": {
+            "query": "flights from BOS to NYC",
+            "kind": "flight",
+            "destination": "NYC"
+          },
+          "result": {
+            "options": [
+              {
+                "id": "AA100",
+                "price": 300,
+                "airline": "AA"
+              }
+            ],
+            "kind": "flight"
+          },
+          "invocation": "probabilistic",
+          "invoked_by": "agent"
+        },
+        {
+          "tool": "Web",
+          "args": {
+            "query": "flights from BOS to NYC",
+            "kind": "flight",
+            "destination": "NYC"
+          },
+          "result": {
+            "options": [
+              {
+                "id": "AA100",
+                "price": 300,
+                "airline": "AA"
+              }
+            ],
+            "kind": "flight"
+          },
+          "invocation": "probabilistic",
+          "invoked_by": "agent"
+        }
+      ]
+    },
+    {
+      "agent": "Hotel",
+      "prompt_issued": "Search hotels in NYC using the Web tool if needed. Context: {\"origin\": \"BOS\", \"destination\": \"NYC\", \"dates\": \"2026-08-01/2026-08-05\", \"budget\": 500, \"chosen_flight\": {\"id\": \"AA100\", \"price\": 300, \"airline\": \"AA\"}, \"chosen_hotel\": {}, \"running_cost\": 0, \"status\": \"delegating\"}",
+      "llm_calls": 2,
+      "input_tokens": 872,
+      "output_tokens": 83,
+      "state_snapshot": {
+        "origin": "BOS",
+        "destination": "NYC",
+        "dates": "2026-08-01/2026-08-05",
+        "budget": 500,
+        "chosen_flight": {
+          "id": "AA100",
+          "price": 300,
+          "airline": "AA"
+        },
+        "chosen_hotel": {
+          "id": "H1",
+          "price": 150,
+          "name": "City Inn"
+        },
+        "running_cost": 0,
+        "status": "delegating"
+      },
+      "communication": "role_handoff",
+      "tool_invocations": [
+        {
+          "tool": "Web",
+          "args": {
+            "query": "hotels in NYC",
+            "kind": "hotel",
+            "destination": "NYC"
+          },
+          "result": {
+            "options": [
+              {
+                "id": "H1",
+                "price": 150,
+                "name": "City Inn"
+              }
+            ],
+            "kind": "hotel"
+          },
+          "invocation": "probabilistic",
+          "invoked_by": "agent"
+        },
+        {
+          "tool": "Web",
+          "args": {
+            "query": "hotels in NYC",
+            "kind": "hotel",
+            "destination": "NYC"
+          },
+          "result": {
+            "options": [
+              {
+                "id": "H1",
+                "price": 150,
+                "name": "City Inn"
+              }
+            ],
+            "kind": "hotel"
+          },
+          "invocation": "probabilistic",
+          "invoked_by": "agent"
+        }
+      ]
+    },
+    {
+      "agent": "Budget",
+      "prompt_issued": "Calculate total cost with Cal tool. Flight price: 300, hotel price: 150, budget $500.",
+      "llm_calls": 2,
+      "input_tokens": 725,
+      "output_tokens": 83,
+      "state_snapshot": {
+        "origin": "BOS",
+        "destination": "NYC",
+        "dates": "2026-08-01/2026-08-05",
+        "budget": 500,
+        "chosen_flight": {
+          "id": "AA100",
+          "price": 300,
+          "airline": "AA"
+        },
+        "chosen_hotel": {
+          "id": "H1",
+          "price": 150,
+          "name": "City Inn"
+        },
+        "running_cost": 450,
+        "status": "approved"
+      },
+      "communication": "role_handoff",
+      "tool_invocations": [
+        {
+          "tool": "Cal",
+          "args": {
+            "flight_price": 300,
+            "hotel_price": 150,
+            "budget": 500
+          },
+          "result": {
+            "total": 450,
+            "within_budget": true
+          },
+          "invocation": "probabilistic",
+          "invoked_by": "agent"
+        },
+        {
+          "tool": "Cal",
+          "args": {
+            "flight_price": 300,
+            "hotel_price": 150,
+            "budget": 500
+          },
+          "result": {
+            "total": 450,
+            "within_budget": true
+          },
+          "invocation": "probabilistic",
+          "invoked_by": "agent"
+        }
+      ]
+    }
+  ],
+  "summary": {
+    "paradigm": "CrewAI",
+    "tool_mode": "probabilistic (agent-bound)",
+    "total_llm_calls": 7,
+    "total_input_tokens": 2677,
+    "total_output_tokens": 463,
+    "total_tool_calls": 6,
+    "deterministic_tool_calls": 0,
+    "probabilistic_tool_calls": 6,
+    "steps": 4,
+    "web_invoked": true,
+    "cal_invoked": true,
+    "plan_complete": true,
+    "final_itinerary": "Trip BOS -> NYC (2026-08-01/2026-08-05): flight=AA100 ($300), hotel=H1 ($150), total=$450, budget=$500, status=approved",
+    "budget_satisfied": true
+  },
+  "final_state": {
+    "origin": "BOS",
+    "destination": "NYC",
+    "dates": "2026-08-01/2026-08-05",
+    "budget": 500,
+    "chosen_flight": {
+      "id": "AA100",
+      "price": 300,
+      "airline": "AA"
+    },
+    "chosen_hotel": {
+      "id": "H1",
+      "price": 150,
+      "name": "City Inn"
+    },
+    "running_cost": 450,
+    "status": "approved"
+  }
+}

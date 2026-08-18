@@ -1,0 +1,195 @@
+{
+  "paradigm": "GABM",
+  "tool_mode": "environment-executed",
+  "steps": [
+    {
+      "agent": "Planner",
+      "prompt_issued": "You are the Planner. Return JSON: {\"action\": \"delegate\"}\nObservation: {\"budget\": 500, \"dates\": \"2026-08-01/2026-08-05\", \"destination\": \"NYC\", \"origin\": \"BOS\", \"status\": \"planning\"}\nRespond with a single JSON object for your action.",
+      "llm_calls": 1,
+      "input_tokens": 74,
+      "output_tokens": 51,
+      "state_snapshot": {
+        "origin": "BOS",
+        "destination": "NYC",
+        "dates": "2026-08-01/2026-08-05",
+        "budget": 500,
+        "chosen_flight": {
+          "id": "AA100",
+          "price": 300,
+          "airline": "AA"
+        },
+        "chosen_hotel": {
+          "id": "H1",
+          "price": 150,
+          "name": "City Inn"
+        },
+        "running_cost": 450,
+        "status": "approved"
+      },
+      "communication": "gm_mediated",
+      "tool_invocations": []
+    },
+    {
+      "agent": "Flight",
+      "prompt_issued": "You are the Flight agent. Return JSON: {\"action\": \"select_flight\"}\nObservation: {\"budget\": 500, \"dates\": \"2026-08-01/2026-08-05\", \"destination\": \"NYC\", \"origin\": \"BOS\", \"running_cost\": 0}\nRespond with a single JSON object for your action.",
+      "llm_calls": 1,
+      "input_tokens": 74,
+      "output_tokens": 51,
+      "state_snapshot": {
+        "origin": "BOS",
+        "destination": "NYC",
+        "dates": "2026-08-01/2026-08-05",
+        "budget": 500,
+        "chosen_flight": {
+          "id": "AA100",
+          "price": 300,
+          "airline": "AA"
+        },
+        "chosen_hotel": {
+          "id": "H1",
+          "price": 150,
+          "name": "City Inn"
+        },
+        "running_cost": 450,
+        "status": "approved"
+      },
+      "communication": "gm_mediated",
+      "tool_invocations": [
+        {
+          "tool": "Web",
+          "args": {
+            "query": "flight NYC",
+            "destination": "NYC",
+            "kind": "flight"
+          },
+          "result": {
+            "id": "AA100",
+            "price": 300,
+            "airline": "AA"
+          },
+          "invocation": "deterministic",
+          "invoked_by": "environment"
+        }
+      ]
+    },
+    {
+      "agent": "Hotel",
+      "prompt_issued": "You are the Hotel agent. Return JSON: {\"action\": \"select_hotel\"}\nObservation: {\"budget\": 500, \"chosen_flight\": {}, \"dates\": \"2026-08-01/2026-08-05\", \"destination\": \"NYC\"}\nRespond with a single JSON object for your action.",
+      "llm_calls": 1,
+      "input_tokens": 74,
+      "output_tokens": 51,
+      "state_snapshot": {
+        "origin": "BOS",
+        "destination": "NYC",
+        "dates": "2026-08-01/2026-08-05",
+        "budget": 500,
+        "chosen_flight": {
+          "id": "AA100",
+          "price": 300,
+          "airline": "AA"
+        },
+        "chosen_hotel": {
+          "id": "H1",
+          "price": 150,
+          "name": "City Inn"
+        },
+        "running_cost": 450,
+        "status": "approved"
+      },
+      "communication": "gm_mediated",
+      "tool_invocations": [
+        {
+          "tool": "Web",
+          "args": {
+            "query": "hotel NYC",
+            "destination": "NYC",
+            "kind": "hotel"
+          },
+          "result": {
+            "id": "H1",
+            "price": 150,
+            "name": "City Inn"
+          },
+          "invocation": "deterministic",
+          "invoked_by": "environment"
+        }
+      ]
+    },
+    {
+      "agent": "Budget",
+      "prompt_issued": "You are the Budget agent. Return JSON: {\"action\": \"check_budget\"}\nObservation: {\"budget\": 500, \"chosen_flight\": {}, \"chosen_hotel\": {}, \"running_cost\": 0, \"status\": \"planning\"}\nRespond with a single JSON object for your action.",
+      "llm_calls": 1,
+      "input_tokens": 74,
+      "output_tokens": 51,
+      "state_snapshot": {
+        "origin": "BOS",
+        "destination": "NYC",
+        "dates": "2026-08-01/2026-08-05",
+        "budget": 500,
+        "chosen_flight": {
+          "id": "AA100",
+          "price": 300,
+          "airline": "AA"
+        },
+        "chosen_hotel": {
+          "id": "H1",
+          "price": 150,
+          "name": "City Inn"
+        },
+        "running_cost": 450,
+        "status": "approved"
+      },
+      "communication": "gm_mediated",
+      "tool_invocations": [
+        {
+          "tool": "Cal",
+          "args": {
+            "flight_price": 300,
+            "hotel_price": 150,
+            "budget": 500
+          },
+          "result": {
+            "total": 450,
+            "within_budget": true
+          },
+          "invocation": "deterministic",
+          "invoked_by": "environment"
+        }
+      ]
+    }
+  ],
+  "summary": {
+    "paradigm": "GABM",
+    "tool_mode": "environment-executed",
+    "total_llm_calls": 4,
+    "total_input_tokens": 296,
+    "total_output_tokens": 204,
+    "total_tool_calls": 3,
+    "deterministic_tool_calls": 3,
+    "probabilistic_tool_calls": 0,
+    "steps": 4,
+    "web_invoked": true,
+    "cal_invoked": true,
+    "plan_complete": true,
+    "final_itinerary": "Trip BOS -> NYC (2026-08-01/2026-08-05): flight=AA100 ($300), hotel=H1 ($150), total=$450, budget=$500, status=approved",
+    "budget_satisfied": true
+  },
+  "final_state": {
+    "origin": "BOS",
+    "destination": "NYC",
+    "dates": "2026-08-01/2026-08-05",
+    "budget": 500,
+    "chosen_flight": {
+      "id": "AA100",
+      "price": 300,
+      "airline": "AA"
+    },
+    "chosen_hotel": {
+      "id": "H1",
+      "price": 150,
+      "name": "City Inn"
+    },
+    "running_cost": 450,
+    "status": "approved"
+  }
+}

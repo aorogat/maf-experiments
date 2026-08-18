@@ -1,0 +1,110 @@
+% Combined Planning Interface appendix (Footnote 6 + R3W3 determinism).
+% Include from supplementary materials.
+\section{Planning Interface Experiment}
+\label{app:planning-interface}
+
+\subsection{Annotated free-form plans (same question, three interfaces)}
+\label{app:annotated-plans}
+We show one MATH-100 item under \textbf{NoPlan}, \textbf{Crew-Plan}, and \textbf{Direct-LLM-Plan}.
+The question is identical; only the planning interface changes.
+Model family: Llama-3.1-8B (NoPlan/Direct via Ollama; Crew-Plan via Groq \texttt{llama-3.1-8b-instant} from the determinism suite).
+
+\begin{quote}
+\small
+\textbf{Question} (\texttt{number\_theory-100.json}).
+Find $n$ if $\gcd(n,40)=10$ and $\mathop{\mathrm{lcm}}[n,40]=280$.
+\quad Gold: $70$.
+\end{quote}
+
+\paragraph{NoPlan (CrewAI, planning disabled).}
+No planner stage. The reasoner emits a short free-form answer.
+Runtime: $30.7$\,s. Correct: yes.
+\begin{verbatim}
+The final answer is $\boxed{70}$.
+\end{verbatim}
+
+\paragraph{Crew-Plan (CrewAI Task Execution Planner).}
+\textbf{Schema violation (annotated).}
+CrewAI's planner must emit a structured \texttt{PlannerTaskPydanticOutput}.
+On this run the model produced a malformed tool call
+(XML-style \texttt{<function=PlannerTaskPydanticOutput>} payload) that the provider rejected
+(\texttt{tool\_use\_failed}). CrewAI then raised \texttt{ConverterError}.
+\emph{Important:} CrewAI exposes \textbf{no callback} for its internal plan object, so the
+plan itself is not observable through the framework API---only the schema violation and the
+wall-clock runtime ($11.3$\,s) are. The plan-shaped text below is recovered from the
+provider's \texttt{failed\_generation} field for annotation, not from a CrewAI plan hook.
+Correct: no (run aborted before a valid final answer).
+\begin{verbatim}
+<function=PlannerTaskPydanticOutput> {"list_of_plans_per_task": [{"task": "Solve the following mathematics problem: Find $n$ if $\gcd(n,40) = 10$ and $\mathop{\text{lcm}}[n,40] = 280$", "plan": "Step 1: Recall the formulas for calculating the Greatest Common Divisor (GCD) and Least Common Multiple (LCM) of two numbers. Step 2: Note that $\gcd(n,40) = 10$ means $n$ must be a multiple of 10, and $\mathop{\text{lcm}}[n,40] = 280$. Step 3: Use the identity $\gcd(a, b) \cdot \mathop{\text{lcm}}[a, b] = a \cdot b$ to find $n$. Step 4: Substituting $\gcd(n,40) = 10$ and $\mathop{\text{lcm}}[n,40] = 280$, and using the given identity, we get $10 \cdot 280 = n \cdot 40$. Step 5: Simplify the equation by dividing both sides by 40 to solve for $n$: $n = \frac{10 \cdot 280}{40} = 70$ Step 6: Therefore, we conclude that the number $n$ that satisfies the given conditions is $70$"}]}
+\end{verbatim}
+
+\noindent\textit{Annotation.}
+\begin{itemize}\setlength{\itemsep}{2pt}
+\item \texttt{<function=PlannerTaskPydanticOutput>} --- free-form / non-schema tool framing (violation site).
+\item Provider code \texttt{tool\_use\_failed} $\rightarrow$ CrewAI \texttt{ConverterError}.
+\item No executor answer is produced; prediction stored as \texttt{FAILED: ConverterError:...}.
+\end{itemize}
+
+\paragraph{Direct-LLM-Plan (two-call plan then answer).}
+An explicit plan is returned in the open prompt (fully observable), then a separate answer call.
+Runtime: $113.6$\,s. Correct: yes.
+
+\noindent\textbf{PLAN:}
+\begin{verbatim}
+**Solution Plan:**
+
+1. **Understand the given information:**
+    * $\gcd(n,40) = 10$
+    * $\mathop{\text{lcm}}[n,40] = 280$
+2. **Recall the relationship between GCD and LCM:**
+    * $GCD(a,b) \times LCM(a,b) = a \times b$
+3. **Apply the relationship to find an equation involving n:**
+    * Substitute $\gcd(n,40)$ and $\mathop{\text{lcm}}[n,40]$ into the formula
+4. **Simplify the equation:**
+    * Isolate $n$ in the equation
+5. **Consider possible values for n based on the GCD:**
+    * Recall that $GCD(a,b) = d$ implies that $d$ divides both $a$ and $b$
+6. **Use the LCM to further constrain possible values of n:**
+    * Consider the factors of $\mathop{\text{lcm}}[n,40]$ and how they relate to $n$
+7. **Combine steps 5-6 to find a specific value for n:**
+\end{verbatim}
+
+\noindent\textbf{ANSWER (excerpt):}
+\begin{verbatim}
+## Step 1: Understand the given information
+We are given that the greatest common divisor (GCD) of $n$ and $40$ is $10$, denoted as $\gcd(n,40) = 10$. Additionally, we know that the least common multiple (LCM) of $n$ and $40$ is $280$, represented as $\mathop{\text{lcm}}[n,40] = 280$.
+
+## Step 2: Recall the relationship between GCD and LCM
+According to the properties of GCD and LCM, for any two numbers $a$ and $b$, their product can be expressed as the product of their GCD and LCM. That is, $\gcd(a,b) \times \mathop{\text{lcm}}[a,b] = a \times b$. We will apply this relationship to the given information involving $n$ and $40$.
+
+## Step 3: Apply the relationship to find an equation involving
+[... truncated for display ...]
+\end{verbatim}
+
+\subsection{\revthree{R3W3}{Run-to-Run Variance of the Planning Interface}}
+\label{app:determinism}
+\revthree{R3W3}{We repeat Crew-Plan on MATH-100 five times for each of four models spanning the capability range. Table~\ref{tab:determinism-math100} reports accuracy, schema-violation rate, and total runtime as mean~$\pm$~population standard deviation.}
+
+\begin{table}[h]
+\centering\footnotesize
+\renewcommand{\arraystretch}{0.95}
+\setlength{\tabcolsep}{4pt}
+\caption{\revthree{R3W3}{Crew-Plan on MATH-100 over five runs per model, mean~$\pm$~population SD.}}
+\label{tab:determinism-math100}
+\begin{tabular}{lrrr}
+\toprule
+Model & Accuracy (\%) & Violations (\%) & Time (s) \\
+\midrule
+GPT-5.6-Terra & $94.8 \pm 1.2$ & $0.0 \pm 0.0$  & $925 \pm 38$ \\
+GPT-5.6-Luna  & $92.2 \pm 0.4$ & $0.0 \pm 0.0$  & $904 \pm 24$ \\
+GPT-OSS-20B   & $56.8 \pm 4.1$ & $38.6 \pm 3.3$ & $486 \pm 31$ \\
+Llama-3.1-8B  & $19.2 \pm 2.1$ & $39.4 \pm 3.2$ & $556 \pm 26$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\noindent
+Schema violations are predictions whose stored \texttt{pred} starts with \texttt{FAILED:}
+(typically \texttt{ConverterError} / planner tool-call failures). Frontier models in this
+suite show $0\%$ violations; smaller models frequently fail the structured planner schema,
+consistent with the annotated Crew-Plan example above.
