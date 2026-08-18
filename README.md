@@ -64,7 +64,8 @@ MAFBench enforces reproducibility through:
 - Backend abstraction supporting cost-aware, framework-agnostic evaluation
 - Experimental results preserved in `results/` for transparency
 
-**AutoGen line.** All AutoGen experiments (overhead, memory, tool use) use Microsoft's rewrite packages `autogen-agentchat` / `autogen-core` / `autogen-ext` **0.7.5** (see `requirements-autogen.lock`). Do **not** install AG2 (`ag2` / `pyautogen`, import name `autogen`); it is unused by MASBench and creates a false dual-stack ambiguity for reviewers.
+**AutoGen line.** All AutoGen experiments (overhead, memory, tool use) use Microsoft's rewrite packages `autogen-agentchat` / `autogen-core` / `autogen-ext` **0.7.5** (see `requirements-autogen.lock`). 
+<!-- Do **not** install AG2 (`ag2` / `pyautogen`, import name `autogen`); it is unused by MASBench and creates a false dual-stack ambiguity for reviewers. -->
 
 Analysis and interpretation are documented within individual experiment directories and associated publications.
 
