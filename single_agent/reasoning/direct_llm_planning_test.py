@@ -301,6 +301,12 @@ def run_direct_planning_on_benchmark(benchmark, log_file, output_filename):
     total = len(benchmark.questions)
     start = time.perf_counter()
 
+    answer_mode = {
+        "gsm8k": "gsm8k_number",
+        "csqa": "csqa_mcq",
+        "math": "math_expression",
+    }.get(benchmark.name)
+
     for idx, q in enumerate(benchmark.questions, 1):
         print(f"🔹 Direct-LLM {benchmark.name.upper()} Question {idx}/{total}")
 
@@ -309,7 +315,8 @@ def run_direct_planning_on_benchmark(benchmark, log_file, output_filename):
             plan, answer, tokens_out = solve_with_direct_planning(
                 q.question,
                 CONFIG["planning_llm"],
-                CONFIG["llm"]
+                CONFIG["llm"],
+                answer_mode=answer_mode,
             )
             q_elapsed = time.perf_counter() - q_start
 

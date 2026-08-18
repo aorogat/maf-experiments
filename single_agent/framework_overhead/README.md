@@ -89,3 +89,4 @@ Concordia:  p50=34334 ms | LLM calls=3.0 | tokens=3145/57 | residual=...
 - Default: 50 trials, concurrency=4.
 - **OpenHands** runs via `openhands_runner.py` with tools disabled (`tools=[]`, `include_default_tools=[]`, `cli_mode=True`). Expect higher prompt-token overhead from the OpenHands system prompt; token capture uses the shared API-boundary instrumentation (litellm → OpenAI path).
 - `openai-agents` is pinned to `0.0.19` for compatibility with `openai==1.102.0`.
+- **AutoGen:** `autogen_runner.py` imports `autogen_agentchat` **0.7.5** (not AG2). Pinned versions for this and other experiments live in [`artifacts/experiment_versions.json`](../../artifacts/experiment_versions.json). Do not install `ag2` / `pyautogen` in the evaluation env.

@@ -1,0 +1,60 @@
+{
+  "description": "Pinned framework package versions used by MASBench experiments. This is the artifact referenced by the paper footnote that versions are pinned.",
+  "python": "3.12.3",
+  "environment": "mafenv",
+  "generated": "2026-08-18",
+  "notes": [
+    "Evaluated AutoGen is Microsoft's rewrite line: autogen-agentchat / autogen-core / autogen-ext.",
+    "AG2 (PyPI package ag2, import name autogen) is not used by any MASBench experiment import and must not be installed in the evaluation environment.",
+    "Install AutoGen via: pip install -r requirements-autogen.lock  (or the three pins below)."
+  ],
+  "packages": {
+    "autogen-agentchat": "0.7.5",
+    "autogen-core": "0.7.5",
+    "autogen-ext": "0.7.5",
+    "crewai": "0.175.0",
+    "langgraph": "0.6.6",
+    "langchain": "0.3.27",
+    "langchain-core": "0.3.75",
+    "langchain-openai": "0.3.32",
+    "openai": "2.7.2",
+    "openai-agents": "0.5.0",
+    "agno": "2.2.11",
+    "openagents": "0.7.9",
+    "gdm-concordia": "2.1.0",
+    "litellm": "1.74.9",
+    "chromadb": "1.0.20"
+  },
+  "experiments": {
+    "framework_overhead": {
+      "artifact": "results/framework_overhead/framework_overhead_50_TRIALS.json",
+      "runner": "single_agent/framework_overhead/run_overhead.py",
+      "autogen": {
+        "distribution": "autogen-agentchat",
+        "version": "0.7.5",
+        "import": "autogen_agentchat.agents.AssistantAgent",
+        "runner_file": "single_agent/framework_overhead/autogen_runner.py"
+      }
+    },
+    "memory": {
+      "autogen": {
+        "distribution": "autogen-agentchat",
+        "version": "0.7.5",
+        "import": "autogen_agentchat.agents.AssistantAgent",
+        "runner_file": "single_agent/memory/autogen_chromadb_test.py"
+      }
+    },
+    "tool_use": {
+      "autogen": {
+        "distribution": "autogen-agentchat",
+        "version": "0.7.5",
+        "import": "autogen_agentchat.agents.AssistantAgent",
+        "runner_file": "single_agent/tool_use/agents/autogen/agent.py"
+      }
+    }
+  },
+  "locks": {
+    "full_env": "requirements.lock",
+    "autogen_rewrite": "requirements-autogen.lock"
+  }
+}
